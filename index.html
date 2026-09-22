@@ -3,650 +3,1407 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gim Duel Ular Tangga PAI: Sejarah Nabi Muhammad SAW</title>
+    <title>Petualangan Sirah Nabi - Ular Tangga PAI Kelas 5 SD</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pai: {
+                            emerald: '#059669',
+                            teal: '#0D9488',
+                            gold: '#D97706',
+                            amber: '#F59E0B',
+                            sand: '#FEF3C7',
+                            sky: '#0284C7',
+                            rose: '#E11D48'
+                        }
+                    },
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        nunito: ['Nunito', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
-        
         body {
-            font-family: 'Fredoka', cursive, sans-serif;
-            background: linear-gradient(135deg, #2dd4bf 0%, #3b82f6 100%);
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #ecfdf5 0%, #fef3c7 50%, #e0f2fe 100%);
             min-height: 100vh;
+            user-select: none;
         }
 
-        .board-container {
-            position: relative;
-            width: 100%;
-            max-width: 650px;
-            aspect-ratio: 1;
+        .font-title {
+            font-family: 'Fredoka', sans-serif;
         }
 
+        /* 50-Tile Grid Layout (10 cols x 5 rows) */
         .board-grid {
             display: grid;
             grid-template-columns: repeat(10, 1fr);
-            grid-template-rows: repeat(10, 1fr);
-            width: 100%;
-            height: 100%;
+            grid-template-rows: repeat(5, 1fr);
+            gap: 4px;
+            aspect-ratio: 10 / 5.2;
             position: relative;
         }
 
-        .cell {
-            font-size: 0.8rem;
-            font-weight: 700;
-            display: flex;
-            align-items: flex-start;
-            justify-content: flex-start;
-            padding: 3px 5px;
-            position: relative;
-            border: 1px solid rgba(255,255,255,0.4);
-            border-radius: 6px;
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.06);
+        .tile {
+            transition: all 0.2s ease;
+            box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.12);
         }
 
-        #board-svg {
+        .tile:hover {
+            transform: scale(1.03);
+            z-index: 5;
+        }
+
+        /* Dynamic Pawn Styling */
+        .pawn {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.35));
+            z-index: 25;
+        }
+
+        /* Dice styling */
+        .dice {
+            transform-style: preserve-3d;
+            transition: transform 1s ease-out;
+        }
+
+        /* Glassmorphism Panel */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.90);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+
+        /* SVG Vector Overlay for Snake & Ladders */
+        #svg-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 10;
+            z-index: 15;
         }
 
-        .player-token {
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            z-index: 25;
-            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4));
+        @keyframes bounce-slow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-bounce-slow {
+            animation: bounce-slow 2s infinite;
         }
 
-        .dice-rolling {
-            animation: roll 0.5s infinite linear;
-        }
-
-        @keyframes roll {
-            0% { transform: rotate(0deg) scale(1.1); }
-            50% { transform: rotate(180deg) scale(0.9); }
-            100% { transform: rotate(360deg) scale(1.1); }
-        }
-
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(12px);
-            border: 2px solid rgba(255, 255, 255, 0.7);
-        }
-
-        .btn-bounce {
-            transition: transform 0.1s ease;
-        }
-        .btn-bounce:active {
-            transform: scale(0.93);
-        }
-
-        .turn-active {
-            box-shadow: 0 0 15px rgba(234, 179, 8, 0.8);
-            border-color: #f59e0b !important;
-            transform: scale(1.03);
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 100;
         }
     </style>
 </head>
-<body class="p-2 md:p-6 text-slate-800">
+<body class="p-2 md:p-5 text-slate-800">
+    <canvas id="confetti-canvas"></canvas>
 
-    <div class="max-w-6xl mx-auto">
-        <!-- Header -->
-        <header class="text-center mb-4">
-            <h1 class="text-3xl md:text-5xl font-extrabold text-white drop-shadow-md tracking-wide">
-                <i class="fa-solid fa-swords text-amber-300"></i> DUEL ULAR TANGGA PAI <i class="fa-solid fa-star text-amber-300"></i>
-            </h1>
-            <p class="text-base md:text-lg text-emerald-100 font-semibold mt-1">
-                Adu Cerdas Sejarah Nabi Muhammad SAW - SD Kelas 5
-            </p>
+    <!-- MAIN CONTAINER -->
+    <div class="max-w-7xl mx-auto flex flex-col gap-4">
+        
+        <!-- HEADER BAR -->
+        <header class="glass-panel rounded-3xl p-4 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4 border-2 border-white">
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-br from-emerald-500 to-teal-700 text-amber-200 w-12 h-12 rounded-2xl shadow-lg flex items-center justify-center font-title font-extrabold text-2xl transform -rotate-3 hover:rotate-0 transition">
+                    <i class="fa-solid fa-mosque"></i>
+                </div>
+                <div>
+                    <h1 class="font-title text-2xl md:text-3xl font-bold bg-gradient-to-r from-emerald-700 via-teal-600 to-amber-600 bg-clip-text text-transparent">
+                        Petualangan Sirah Nabi (50 Soal)
+                    </h1>
+                    <p class="text-xs md:text-sm font-bold text-slate-600">
+                        Gim Ular Tangga PAI Interaktif • Sejarah Nabi Muhammad SAW Kelas 5 SD
+                    </p>
+                </div>
+            </div>
+
+            <!-- Header Controls -->
+            <div class="flex items-center gap-3 flex-wrap justify-center">
+                <div class="bg-white/80 px-4 py-2 rounded-2xl border border-slate-200 flex items-center gap-2 shadow-sm">
+                    <label for="mode-select" class="text-xs font-bold text-slate-500 uppercase">Mode Game:</label>
+                    <select id="mode-select" onchange="changeGameMode(this.value)" class="bg-transparent font-title font-bold text-emerald-800 outline-none cursor-pointer">
+                        <option value="1">1 Pemain (Petualang Solo)</option>
+                        <option value="2">2 Pemain (Duel Santri)</option>
+                    </select>
+                </div>
+
+                <button onclick="toggleAudio()" id="btn-audio" class="w-11 h-11 rounded-2xl bg-white/80 hover:bg-white text-slate-700 flex items-center justify-center shadow-sm border border-slate-200 text-lg transition" title="Suara Musik/Efek">
+                    <i class="fa-solid fa-volume-high" id="audio-icon"></i>
+                </button>
+
+                <button onclick="resetGame()" class="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-title font-bold rounded-2xl shadow-md transition transform hover:scale-105 active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Mulai Ulang</span>
+                </button>
+            </div>
         </header>
 
-        <!-- Main Grid Layout -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- GAME LAYOUT: BOARD & CONTROL PANEL -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
             
-            <!-- Papan Permainan (8 cols) -->
-            <div class="lg:col-span-8 flex flex-col items-center">
-                <div class="board-container bg-white p-3 md:p-4 rounded-3xl shadow-2xl relative border-4 border-amber-300">
+            <!-- LEFT / TOP: BOARD DISPLAY (8 COLS) -->
+            <div class="lg:col-span-8 glass-panel p-2.5 md:p-4 rounded-3xl shadow-xl relative border-2 border-white overflow-hidden">
+                
+                <!-- Board Grid Wrapper -->
+                <div class="relative w-full rounded-2xl overflow-hidden bg-emerald-950/5 p-1.5" id="board-wrapper">
+                    <!-- SVG Layer for Real Vector Snakes and Ladders -->
+                    <svg id="svg-overlay"></svg>
                     
-                    <div id="board" class="board-grid rounded-2xl overflow-hidden shadow-inner">
-                        <svg id="board-svg"></svg>
-
-                        <!-- Token Pemain 1 (Merah) -->
-                        <div id="player-1" class="player-token absolute flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-red-500 text-white font-bold text-xs border-2 border-white shadow-lg">
-                            P1
-                        </div>
-                        <!-- Token Pemain 2 (Biru) -->
-                        <div id="player-2" class="player-token absolute flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-blue-500 text-white font-bold text-xs border-2 border-white shadow-lg">
-                            P2
-                        </div>
+                    <!-- 50 Tile Grid -->
+                    <div id="board" class="board-grid">
+                        <!-- Dynamic 50 tiles rendered by JS -->
                     </div>
-
                 </div>
+
+                <!-- Tile Legend / Topic Info -->
+                <div class="mt-3 flex flex-wrap justify-center items-center text-[11px] md:text-xs font-bold gap-2 text-slate-700">
+                    <div class="flex items-center gap-1.5 bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full border border-emerald-300">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> 1-10: Kelahiran & Silsilah
+                    </div>
+                    <div class="flex items-center gap-1.5 bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full border border-amber-300">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> 11-20: Masa Menyusui & Halimah
+                    </div>
+                    <div class="flex items-center gap-1.5 bg-rose-100 text-rose-800 px-2.5 py-1 rounded-full border border-rose-300">
+                        <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> 21-30: Masa Yatim Piatu
+                    </div>
+                    <div class="flex items-center gap-1.5 bg-sky-100 text-sky-800 px-2.5 py-1 rounded-full border border-sky-300">
+                        <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span> 31-40: Menggembala & Berdagang
+                    </div>
+                    <div class="flex items-center gap-1.5 bg-purple-100 text-purple-800 px-2.5 py-1 rounded-full border border-purple-300">
+                        <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> 41-50: Gelar Al-Amin
+                    </div>
+                </div>
+
             </div>
 
-            <!-- Panel Kontrol Duel & Skor (4 cols) -->
+            <!-- RIGHT / BOTTOM: CONTROLS & STATS (4 COLS) -->
             <div class="lg:col-span-4 flex flex-col gap-4">
                 
-                <!-- Status P1 & P2 -->
-                <div class="grid grid-cols-2 gap-3">
-                    <!-- Card P1 -->
-                    <div id="card-p1" class="glass-panel p-3 rounded-2xl border-2 border-red-300 text-center transition-all turn-active">
-                        <div class="flex items-center justify-center gap-1 text-red-600 font-bold text-sm mb-1">
-                            <i class="fa-solid fa-user-ninja"></i> PEMAIN 1
+                <!-- DICE & TURN CARD -->
+                <div class="glass-panel p-5 rounded-3xl shadow-xl border-2 border-white flex flex-col items-center text-center">
+                    
+                    <!-- Turn Indicator -->
+                    <div id="turn-banner" class="w-full py-2.5 px-4 rounded-2xl mb-3 text-white font-title font-bold text-base md:text-lg shadow-md transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600">
+                        <i class="fa-solid fa-user-ninja"></i>
+                        <span id="turn-text">Giliran: Pemain 1</span>
+                    </div>
+
+                    <!-- Interactive Dice Box -->
+                    <div class="my-3 relative">
+                        <div id="dice-box" class="w-20 h-20 bg-gradient-to-br from-amber-100 to-amber-200 border-4 border-amber-500 rounded-3xl shadow-2xl flex items-center justify-center text-4xl font-black text-amber-700 font-title cursor-pointer transform hover:scale-105 active:scale-95 transition" onclick="rollDice()">
+                            <span id="dice-value">🎲</span>
                         </div>
-                        <div class="text-xs text-slate-500">Petak: <b id="pos-p1" class="text-red-700 text-base">1</b></div>
-                        <div class="text-xs text-slate-500">Skor: <b id="score-p1" class="text-red-700 text-lg">0</b></div>
-                    </div>
-                    <!-- Card P2 -->
-                    <div id="card-p2" class="glass-panel p-3 rounded-2xl border-2 border-blue-300 text-center transition-all opacity-70">
-                        <div class="flex items-center justify-center gap-1 text-blue-600 font-bold text-sm mb-1">
-                            <i class="fa-solid fa-user-astronaut"></i> PEMAIN 2
-                        </div>
-                        <div class="text-xs text-slate-500">Petak: <b id="pos-p2" class="text-blue-700 text-base">1</b></div>
-                        <div class="text-xs text-slate-500">Skor: <b id="score-p2" class="text-blue-700 text-lg">0</b></div>
-                    </div>
-                </div>
-
-                <!-- Panel Dadu & Giliran -->
-                <div class="glass-panel p-5 rounded-3xl shadow-lg border-2 border-amber-300 flex flex-col items-center">
-                    <div id="turn-indicator" class="px-4 py-1.5 rounded-full bg-red-500 text-white font-bold text-xs mb-3 shadow-sm flex items-center gap-1">
-                        <i class="fa-solid fa-play"></i> Giliran Pemain 1
                     </div>
 
-                    <div id="dice" class="w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center text-white text-3xl font-extrabold shadow-md mb-3 border-2 border-amber-200">
-                        <i class="fa-solid fa-dice-one"></i>
-                    </div>
-
-                    <button id="roll-btn" onclick="rollDice()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-xl shadow-lg btn-bounce text-lg flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-dice"></i> Lempar Dadu!
+                    <!-- Roll Button -->
+                    <button id="btn-roll" onclick="rollDice()" class="w-full py-3 bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-title text-lg font-bold rounded-2xl shadow-lg transform hover:-translate-y-0.5 active:translate-y-0 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-dice text-xl"></i>
+                        <span>Lempar Dadu!</span>
                     </button>
+                    <p id="roll-status" class="text-xs text-slate-600 mt-2 font-bold">Klik dadu untuk melangkah menuju FINISH (50)!</p>
                 </div>
 
-                <!-- Petunjuk Mode Duel -->
-                <div class="glass-panel p-4 rounded-3xl shadow-lg border-2 border-emerald-200 text-xs text-slate-700 space-y-2">
-                    <h3 class="font-bold text-emerald-800 text-sm flex items-center gap-1">
-                        <i class="fa-solid fa-bolt text-amber-500"></i> Aturan Mode Duel:
+                <!-- PLAYERS SCORECARD -->
+                <div class="glass-panel p-5 rounded-3xl shadow-xl border-2 border-white flex flex-col gap-3">
+                    <h3 class="font-title text-base font-bold text-slate-800 flex items-center gap-2 border-b border-slate-200 pb-2">
+                        <i class="fa-solid fa-star text-amber-500"></i>
+                        <span>Papan Skor Santri</span>
                     </h3>
-                    <ul class="list-disc list-inside space-y-1">
-                        <li>Pemain bergantian melemparkan dadu.</li>
-                        <li><b>Jawab Benar</b>: Maju ke petak baru (+10 Skor).</li>
-                        <li><b>Jawab Salah</b>: Mundur 1 petak & giliran berpindah!</li>
-                        <li><b>Fitur Rebut</b>: Jika mendarat di petak lawan, posisi lawan akan terdorong mundur 1 petak!</li>
-                    </ul>
+
+                    <!-- Player 1 Card -->
+                    <div id="p1-card" class="p-3 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-300 flex items-center justify-between shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center font-title font-bold text-base shadow">
+                                🕌
+                            </div>
+                            <div>
+                                <h4 class="font-title font-bold text-slate-800 text-xs md:text-sm">Pemain 1 (Hijau)</h4>
+                                <p class="text-[11px] font-bold text-slate-500">Posisi: Petak <span id="p1-pos" class="font-black text-emerald-700">1</span></p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span id="p1-score" class="font-title font-extrabold text-base text-emerald-700">0 Poin</span>
+                        </div>
+                    </div>
+
+                    <!-- Player 2 Card -->
+                    <div id="p2-card" class="p-3 rounded-2xl bg-gradient-to-r from-sky-50 to-blue-50 border-2 border-sky-200 opacity-60 flex items-center justify-between shadow-sm transition-all">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-sky-600 text-white flex items-center justify-center font-title font-bold text-base shadow">
+                                🤖
+                            </div>
+                            <div>
+                                <h4 class="font-title font-bold text-slate-800 text-xs md:text-sm" id="p2-name">Komputer (Bot)</h4>
+                                <p class="text-[11px] font-bold text-slate-500">Posisi: Petak <span id="p2-pos" class="font-black text-sky-700">1</span></p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span id="p2-score" class="font-title font-extrabold text-base text-sky-700">0 Poin</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GUIDANCE -->
+                <div class="glass-panel p-3.5 rounded-2xl shadow-sm text-xs text-slate-700 border border-white flex items-start gap-2.5">
+                    <i class="fa-solid fa-kaaba text-emerald-600 text-xl mt-0.5"></i>
+                    <div>
+                        <p class="font-bold text-emerald-900">Petunjuk Permainan:</p>
+                        <p class="mt-0.5 leading-snug font-semibold">Jawab pertanyaan Sejarah Nabi Muhammad SAW di setiap petak! Jawab benar di <strong class="text-emerald-700">Tangga</strong> untuk naik, atau hindari dipatuk <strong class="text-rose-600">Ular</strong> jika salah!</p>
+                    </div>
                 </div>
 
             </div>
-
         </div>
     </div>
 
-    <!-- Modal Kuis Duel -->
-    <div id="quiz-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border-4 border-amber-400 transform transition-all scale-95 opacity-0 duration-300" id="modal-card">
+    <!-- MODAL QUESTION -->
+    <div id="modal-question" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel max-w-lg w-full rounded-3xl p-6 shadow-2xl border-4 border-white flex flex-col gap-4 transform transition-all scale-95 opacity-0" id="question-card">
             
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-                <span id="quiz-badge" class="px-3 py-1 rounded-full text-xs font-bold text-white bg-red-500 flex items-center gap-1">
-                    <i class="fa-solid fa-user text-xs"></i> Giliran Pemain 1
+            <!-- Category Badge & Tile Number -->
+            <div class="flex items-center justify-between">
+                <span id="q-category" class="px-3 py-1 bg-emerald-600 text-white font-title text-xs font-bold rounded-full shadow">
+                    Sirah Nabawiyah
                 </span>
-                <span class="text-xs text-slate-400 font-bold">Petak <span id="modal-cell-num">0</span></span>
+                <span id="q-number" class="font-title font-bold text-amber-700 text-xs md:text-sm bg-amber-100 px-3 py-1 rounded-full border border-amber-300">
+                    Petak #1
+                </span>
             </div>
 
-            <h3 id="quiz-question" class="text-lg md:text-xl font-bold text-slate-800 mb-6 leading-relaxed">
-                Pertanyaan kuis akan muncul di sini...
+            <!-- Question Text -->
+            <div class="my-1">
+                <h3 id="q-text" class="font-title text-base md:text-lg font-bold text-slate-800 leading-snug">
+                    Teks pertanyaan akan muncul di sini?
+                </h3>
+            </div>
+
+            <!-- Options Grid -->
+            <div id="q-options" class="flex flex-col gap-2.5">
+                <!-- Option buttons dynamically generated -->
+            </div>
+
+            <div class="text-center text-xs font-bold text-slate-500 mt-1">
+                Pilih jawaban yang paling tepat!
+            </div>
+        </div>
+    </div>
+
+    <!-- RESULT / FEEDBACK MODAL -->
+    <div id="modal-feedback" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-6 shadow-2xl border-4 border-white flex flex-col items-center text-center gap-3 transform transition-all scale-95 opacity-0" id="feedback-card">
+            
+            <div id="fb-icon-bg" class="w-16 h-16 rounded-full flex items-center justify-center text-3xl shadow-lg my-1">
+                <i id="fb-icon" class="fa-solid fa-check"></i>
+            </div>
+
+            <h3 id="fb-title" class="font-title text-xl font-bold text-slate-800">
+                Masya Allah, Benar!
             </h3>
 
-            <div id="quiz-options" class="space-y-3 mb-6"></div>
+            <p id="fb-msg" class="text-xs md:text-sm font-bold text-slate-700 leading-relaxed">
+                Penjelasan hikmah sejarah akan muncul di sini.
+            </p>
 
-            <div id="quiz-feedback" class="hidden p-3 rounded-xl text-center font-bold text-sm mb-4"></div>
-
-            <button id="next-btn" onclick="closeModal()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md hidden btn-bounce">
-                Lanjutkan Duel <i class="fa-solid fa-arrow-right ml-1"></i>
+            <button id="fb-btn" onclick="closeFeedback()" class="mt-2 w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-title font-bold text-base rounded-2xl shadow-md hover:opacity-90 transition">
+                Lanjutkan Permainan
             </button>
         </div>
     </div>
 
-    <!-- Modal Pemenang Duel -->
-    <div id="win-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-3xl max-w-md w-full p-8 text-center shadow-2xl border-4 border-amber-400">
-            <div id="winner-icon-bg" class="w-20 h-20 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-4 border-2 border-amber-300 shadow-inner">
-                <i class="fa-solid fa-trophy"></i>
+    <!-- GAME OVER / WINNER MODAL -->
+    <div id="modal-winner" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-6 shadow-2xl border-4 border-amber-300 flex flex-col items-center text-center gap-4 animate-bounce-slow">
+            <div class="text-6xl my-1">🏆</div>
+            <h2 class="font-title text-3xl font-extrabold text-amber-600">
+                Alhamdulillah! Juara!
+            </h2>
+            <p id="winner-text" class="font-title text-lg font-bold text-slate-800">
+                Pemain 1 Berhasil Menamatkan 50 Petak Sirah Nabi Muhammad SAW!
+            </p>
+            <div id="winner-stats" class="w-full bg-white/90 p-4 rounded-2xl border border-slate-200 text-left text-xs font-bold text-slate-700 flex flex-col gap-2">
+                <!-- Stats loaded here -->
             </div>
-            <h2 id="winner-title" class="text-2xl font-extrabold text-slate-800 mb-1">PEMAIN 1 MENANG!</h2>
-            <p class="text-slate-600 mb-6 text-xs">Selamat atas kemenangan duel pengetahuan Sejarah Nabi Muhammad SAW!</p>
-            
-            <div class="grid grid-cols-2 gap-3 mb-6 text-xs font-bold">
-                <div class="bg-red-50 p-3 rounded-2xl border border-red-200">
-                    <span class="text-red-600 block">SKOR PEMAIN 1</span>
-                    <span id="final-score-p1" class="text-2xl text-red-700">0</span>
-                </div>
-                <div class="bg-blue-50 p-3 rounded-2xl border border-blue-200">
-                    <span class="text-blue-600 block">SKOR PEMAIN 2</span>
-                    <span id="final-score-p2" class="text-2xl text-blue-700">0</span>
-                </div>
-            </div>
-
-            <button onclick="location.reload()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg btn-bounce">
-                Main Duel Lagi <i class="fa-solid fa-rotate-right ml-1"></i>
+            <button onclick="resetGame(); closeModal('modal-winner');" class="mt-2 w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-title font-bold text-base rounded-2xl shadow-lg hover:scale-105 transition">
+                Main Lagi Dari Awal
             </button>
         </div>
     </div>
 
     <script>
-        // --- EXACT 50 QUESTIONS DATA ---
-        const questionsData = [
-            { id: 1, q: "Nabi Muhammad SAW lahir pada tanggal dan bulan apa dalam kalender Hijriah?", a: ["12 Rabiul Awal", "17 Ramadan", "1 Muharram", "10 Zulhijah"], correct: 0 },
-            { id: 2, q: "Tahun kelahiran Nabi Muhammad SAW disebut Tahun Gajah karena...", a: ["Pasukan gajah menyerang Ka'bah", "Banyak gajah lahir", "Masyarakat memelihara gajah", "Ada kontes gajah"], correct: 0 },
-            { id: 3, q: "Siapa nama ayah kandung Nabi Muhammad SAW?", a: ["Abdullah", "Abu Thalib", "Abdul Muthalib", "Hamzah"], correct: 0 },
-            { id: 4, q: "Siapa nama ibu kandung Nabi Muhammad SAW?", a: ["Aaminah", "Khadijah", "Halimah", "Fatimah"], correct: 0 },
-            { id: 5, q: "Siapa nama kakek Nabi Muhammad SAW yang mengasuhnya dengan sangat penuh kasih sayang?", a: ["Abdul Muthalib", "Abu Lahab", "Abbas", "Abu Thalib"], correct: 0 },
-            { id: 6, q: "Siapa nama paman Nabi Muhammad SAW yang mengasuhnya setelah kakeknya meninggal dunia?", a: ["Abu Thalib", "Abu Jahal", "Hamzah", "Abbas"], correct: 0 },
-            { id: 7, q: "Nabi Muhammad SAW telah menjadi anak yatim sejak dalam kandungan karena ayahnya wafat ketika Nabi...", a: ["Masih dalam kandungan (2 bulan)", "Baru saja lahir", "Usia 1 tahun", "Usia 2 tahun"], correct: 0 },
-            { id: 8, q: "Ibu kandung Nabi Muhammad SAW (Aaminah) wafat saat Nabi berusia...", a: ["6 tahun", "4 tahun", "8 tahun", "10 tahun"], correct: 0 },
-            { id: 9, q: "Kakek Nabi Muhammad SAW (Abdul Muthalib) wafat saat Nabi berusia...", a: ["8 tahun", "6 tahun", "10 tahun", "12 tahun"], correct: 0 },
-            { id: 10, q: "Di manakah tempat wafatnya ibu Aaminah saat dalam perjalanan kembali dari Yatsrib?", a: ["Abwa", "Makkah", "Madinah", "Thaif"], correct: 0 },
-            { id: 11, q: "Raja dari Yaman yang memimpin pasukan gajah untuk menghancurkan Ka'bah bernama...", a: ["Abrahah", "Namrud", "Fir'aun", "Heraklius"], correct: 0 },
-            { id: 12, q: "Burung yang diutus oleh Allah SWT untuk melempari pasukan gajah dengan batu beracun adalah burung...", a: ["Ababil", "Hud-hud", "Garuda", "Merpati"], correct: 0 },
-            { id: 13, q: "Kisah hancurnya pasukan gajah diabadikan oleh Allah SWT dalam Al-Qur'an surah...", a: ["Al-Fil", "Al-Quraysh", "Al-Kafirun", "Al-Ikhlas"], correct: 0 },
-            { id: 14, q: "Siapa nama ibu persusuan pertama Nabi Muhammad SAW secara singkat setelah ibunya?", a: ["Tsuwaibah Al-Aslamiyah", "Halimah As-Sa'diyyah", "Ummu Aiman", "Fatimah"], correct: 0 },
-            { id: 15, q: "Siapa nama ibu persusuan yang merawat Nabi Muhammad SAW sampai usia 4 tahun di perkampungan desa?", a: ["Halimah As-Sa'diyyah", "Tsuwaibah", "Ummu Aiman", "Khadijah"], correct: 0 },
-            { id: 16, q: "Keberkahan luar biasa yang didapat Halimah ketika mengasuh Nabi Muhammad SAW adalah...", a: ["Hewan ternaknya gemuk & susunya melimpah", "Menjadi penguasa Makkah", "Menemukan emas di rumah", "Pohon berbuah emas"], correct: 0 },
-            { id: 17, q: "Halimah As-Sa'diyyah berasal dari suku perkampungan...", a: ["Bani Sa'ad", "Bani Hasyim", "Bani Umayyah", "Bani Quraisy"], correct: 0 },
-            { id: 18, q: "Peristiwa pembelahan dada Nabi Muhammad SAW oleh Malaikat Jibril terjadi sewaktu Nabi tinggal bersama...", a: ["Halimah As-Sa'diyyah", "Aaminah", "Abu Thalib", "Abdul Muthalib"], correct: 0 },
-            { id: 19, q: "Tujuan Malaikat Jibril membelah dada Nabi Muhammad SAW di masa kecil adalah...", a: ["Membersihkan hatinya dari kotoran syetan", "Menyembuhkan penyakit", "Memberikan kekuatan fisik", "Mengisi perut"], correct: 0 },
-            { id: 20, q: "Siapa nama wanita pelayan setia keluarga yang mengasuh Nabi Muhammad sejak kecil hingga dewasa?", a: ["Ummu Aiman", "Halimah", "Tsuwaibah", "Saudah"], correct: 0 },
-            { id: 21, q: "Pekerjaan utama yang dilakukan Nabi Muhammad SAW pada masa kanak-kanak & remajanya adalah...", a: ["Menggembala kambing", "Bertani jagung", "Membuat kerajinan", "Menjadi nelayan"], correct: 0 },
-            { id: 22, q: "Hikmah utama dari menggembala kambing bagi calon Rasul adalah melatih...", a: ["Kesabaran, kasih sayang, & kepemimpinan", "Kekuatan otot", "Kepintaran menghitung", "Kecepatan berlari"], correct: 0 },
-            { id: 23, q: "Pada usia berapa tahun Nabi Muhammad SAW pertama kali diajak berdagang ke Syam oleh pamannya?", a: ["12 tahun", "10 tahun", "15 tahun", "20 tahun"], correct: 0 },
-            { id: 24, q: "Pendeta Nasrani yang mengenali tanda-tanda kenabian pada diri Nabi Muhammad muda di Syam bernama...", a: ["Buhaira", "Waraqah bin Naufal", "Musailamah", "Heraklius"], correct: 0 },
-            { id: 25, q: "Mukjizat yang terlihat saat perjalanan dagang Nabi remaja ke Syam adalah...", a: ["Awan selalu menaungi di atas beliau", "Batu bisa berbicara", "Matahari berhenti", "Air keluar dari jari"], correct: 0 },
-            { id: 26, q: "Karakter jujur Nabi Muhammad SAW dalam berdagang membuat kagum seorang saudagar wanita kaya yaitu...", a: ["Khadijah binti Khuwailid", "Aisyah", "Hafshah", "Ummu Salamah"], correct: 0 },
-            { id: 27, q: "Siapa nama pelayan Khadijah yang menemani Nabi Muhammad SAW saat berdagang ke Syam?", a: ["Maysarah", "Zaid", "Bilal", "Anas"], correct: 0 },
-            { id: 28, q: "Masyarakat Quraisy memberikan gelar 'Al-Amin' kepada Nabi Muhammad SAW yang artinya...", a: ["Dapat dipercaya", "Orang yang cerdas", "Pemimpin yang kuat", "Penyayang"], correct: 0 },
-            { id: 29, q: "Mengapa masyarakat Makkah memberi gelar Al-Amin kepada beliau?", a: ["Karena kejujuran dan sifat terpercayanya", "Karena beliau sangat kaya", "Karena anak bangsawan", "Karena jago berperang"], correct: 0 },
-            { id: 30, q: "Nabi Muhammad SAW menikah dengan Siti Khadijah pada saat Nabi berusia...", a: ["25 tahun", "20 tahun", "30 tahun", "40 tahun"], correct: 0 },
-            { id: 31, q: "Berapakah usia Siti Khadijah ketika menikah dengan Nabi Muhammad SAW?", a: ["40 tahun", "25 tahun", "30 tahun", "35 tahun"], correct: 0 },
-            { id: 32, q: "Perselisihan pemuka Quraisy tentang peletakan batu Hajar Aswad berhasil diselesaikan oleh Nabi pada usia...", a: ["35 tahun", "25 tahun", "30 tahun", "40 tahun"], correct: 0 },
-            { id: 33, q: "Batu hitam yang menempel di sudut bangunan Ka'bah dinamakan...", a: ["Hajar Aswad", "Maqam Ibrahim", "Hijir Ismail", "Rukn Yamani"], correct: 0 },
-            { id: 34, q: "Cara cerdas Nabi Muhammad menyelesaikan perselisihan Hajar Aswad adalah dengan...", a: ["Membentangkan kain & diangkat bersama", "Meletakkannya sendiri secara sepihak", "Melakukan undian", "Membeli batu baru"], correct: 0 },
-            { id: 35, q: "Perang yang pernah diikuti oleh Nabi Muhammad SAW pada masa remaja adalah Perang...", a: ["Fijar", "Badar", "Uhud", "Khandaq"], correct: 0 },
-            { id: 36, q: "Perang Fijar dinamakan demikian karena perang tersebut terjadi pada...", a: ["Bulan suci / bulan haram", "Malam hari", "Musim dingin", "Di tepi sungai"], correct: 0 },
-            { id: 37, q: "Peran Nabi Muhammad SAW remaja dalam Perang Fijar adalah...", a: ["Mengumpulkan & menyiapkan anak panah", "Menjadi panglima utama", "Mengobati benteng", "Membuat benteng"], correct: 0 },
-            { id: 38, q: "Kakek Nabi Muhammad (Abdul Muthalib) merupakan tokoh dihormati yang berasal dari suku...", a: ["Quraisy", "Tamim", "Khozraj", "Aus"], correct: 0 },
-            { id: 39, q: "Sifat wajib Nabi Muhammad SAW 'Siddiq' artinya...", a: ["Jujur / Benar", "Dapat dipercaya", "Menyampaikan", "Cerdas"], correct: 0 },
-            { id: 40, q: "Sifat wajib Nabi Muhammad SAW 'Amanah' artinya...", a: ["Dapat dipercaya", "Jujur", "Menyampaikan", "Cerdas"], correct: 0 },
-            { id: 41, q: "Sifat wajib Nabi Muhammad SAW 'Fathanah' artinya...", a: ["Cerdas / Bijaksana", "Menyampaikan", "Jujur", "Setia"], correct: 0 },
-            { id: 42, q: "Sifat wajib Nabi Muhammad SAW 'Tabligh' artinya...", a: ["Menyampaikan wahyu", "Cerdas", "Dapat dipercaya", "Jujur"], correct: 0 },
-            { id: 43, q: "Ayah Nabi Muhammad SAW (Abdullah) wafat dan dimakamkan di kota...", a: ["Yatsrib (Madinah)", "Makkah", "Syam", "Thaif"], correct: 0 },
-            { id: 44, q: "Perjanjian persaudaraan membela orang teraniaya yang diikuti Nabi muda dinamakan...", a: ["Hilf al-Fudhul", "Piagam Madinah", "Perjanjian Hudaibiyah", "Sumpah Pemuda"], correct: 0 },
-            { id: 45, q: "Perilaku jujur Nabi Muhammad SAW saat berdagang adalah...", a: ["Jelaskan kelebihan & kekurangan barang", "Mengurangi timbangan", "Menjual mahal barang jelek", "Berbohong harga modal"], correct: 0 },
-            { id: 46, q: "Gelar Nabi Muhammad SAW 'Rahmatan lil 'Aalamin' berarti...", a: ["Rahmat bagi semesta alam", "Pemimpin Arab", "Pedagang kaya", "Penakluk kota"], correct: 0 },
-            { id: 47, q: "Nabi Muhammad SAW merupakan keturunan lurus dari Nabi terdahulu yaitu Nabi...", a: ["Ibrahim AS & Ismail AS", "Musa AS", "Isa AS", "Yunus AS"], correct: 0 },
-            { id: 48, q: "Ketika Nabi Muhammad SAW lahir, terjadi peristiwa padamnya api sembahan kaum Majusi di negara...", a: ["Persia", "Romawi", "Mesir", "Yaman"], correct: 0 },
-            { id: 49, q: "Siapa paman Nabi Muhammad SAW yang menentang keras dan membenci dakwah Islam?", a: ["Abu Lahab", "Abu Thalib", "Hamzah", "Abbas"], correct: 0 },
-            { id: 50, q: "Meneladani akhlak Nabi Muhammad SAW sejak kecil bermanfaat agar kita...", a: ["Dicintai Allah SWT & berakhlak mulia", "Dipuji teman saja", "Menjadi orang paling kaya", "Tidak perlu belajar"], correct: 0 }
+        /* ===================================================================
+           1. QUESTION DATABASE (50 QUESTIONS COVERING SIRAH NABI KELAS 5 SD)
+           =================================================================== */
+        const questionsDB = [
+            // --- TOPIC 1: Kelahiran & Silsilah Nabi (Petak 1-10) ---
+            {
+                num: 1, cat: "Kelahiran Nabi", color: "bg-emerald-600",
+                q: "Nabi Muhammad SAW dilahirkan pada tanggal...",
+                options: ["12 Rabiul Awal Tahun Gajah", "17 Ramadan", "1 Muharram", "27 Rajab"],
+                answer: 0, explain: "Nabi Muhammad SAW lahir pada tanggal 12 Rabiul Awal (Tahun Gajah) di Makkah."
+            },
+            {
+                num: 2, cat: "Kelahiran Nabi", color: "bg-emerald-600",
+                q: "Mengapa tahun kelahiran Nabi Muhammad SAW disebut sebagai Tahun Gajah?",
+                options: ["Karena Raja Abraha menyerang Makkah membawa pasukan gajah", "Karena banyak gajah lahir di Makkah", "Karena masyarakat Makkah memelihara gajah", "Karena gajah menyelamatkan kota Makkah"],
+                answer: 0, explain: "Dinamakan Tahun Gajah karena saat itu Raja Abraha dari Yaman menyerang Ka'bah dengan pasukan gajah."
+            },
+            {
+                num: 3, cat: "Silsilah Nabi", color: "bg-emerald-600",
+                q: "Siapakah nama Ayah kandung Nabi Muhammad SAW?",
+                options: ["Abdullah", "Abu Thalib", "Abdul Muthalib", "Hamzah"],
+                answer: 0, explain: "Ayah kandung Nabi Muhammad SAW bernama Abdullah bin Abdul Muthalib."
+            },
+            {
+                num: 4, cat: "Silsilah Nabi", color: "bg-emerald-600",
+                q: "Siapakah nama Ibu kandung Nabi Muhammad SAW?",
+                options: ["Aminah binti Wahab", "Khadijah binti Khuwailid", "Halimah as-Sa'diyyah", "Fatimah az-Zahra"],
+                answer: 0, explain: "Ibu kandung beliau bernama Aminah binti Wahab."
+            },
+            {
+                num: 5, cat: "Silsilah Nabi", color: "bg-emerald-600",
+                q: "Siapakah nama Kakek Nabi Muhammad SAW yang sangat disegani di kota Makkah?",
+                options: ["Abdul Muthalib", "Abu Lahab", "Abu Sufyan", "Abbas"],
+                answer: 0, explain: "Kakek beliau bernama Abdul Muthalib, pemimpin suku Quraisy yang mengasuh Nabi."
+            },
+            {
+                num: 6, cat: "Silsilah Nabi", color: "bg-emerald-600",
+                q: "Siapakah paman Nabi Muhammad SAW yang mengasuh beliau setelah kakeknya meninggal?",
+                options: ["Abu Thalib", "Abu Jahl", "Abu Lahab", "Umar bin Khattab"],
+                answer: 0, explain: "Paman beliau yang mengasuh dan membela Nabi Muhammad dengan gigih adalah Abu Thalib."
+            },
+            {
+                num: 7, cat: "Kelahiran Nabi", color: "bg-emerald-600",
+                q: "Di manakah kota tempat kelahiran Nabi Muhammad SAW?",
+                options: ["Makkah", "Madinah", "Yerusalem", "Mesir"],
+                answer: 0, explain: "Nabi Muhammad SAW lahir di kota Makkah Al-Mukarramah."
+            },
+            {
+                num: 8, cat: "Kelahiran Nabi", color: "bg-emerald-600",
+                q: "Burung apa yang dikirim Allah SWT untuk menghancurkan pasukan gajah Raja Abraha?",
+                options: ["Burung Ababil", "Burung Garuda", "Burung Merpati", "Burung Elang"],
+                answer: 0, explain: "Allah mengirim Burung Ababil yang membawa batu berapi dari neraka untuk membinasakan Pasukan Gajah (QS. Al-Fil)."
+            },
+            {
+                num: 9, cat: "Silsilah Nabi", color: "bg-emerald-600",
+                q: "Garis keturunan Nabi Muhammad SAW bersambung hingga sampai ke Nabi...",
+                options: ["Nabi Ismail AS dan Nabi Ibrahim AS", "Nabi Musa AS", "Nabi Isa AS", "Nabi Adam AS"],
+                answer: 0, explain: "Silsilah beliau bersambung ke Nabi Ismail AS dan Nabi Ibrahim AS."
+            },
+            {
+                num: 10, cat: "Kelahiran Nabi", color: "bg-emerald-600",
+                q: "Kejadian ajaib apa yang terjadi di Istana Persia saat malam kelahiran Nabi Muhammad SAW?",
+                options: ["Api sembahan kaum Majusi padam & berhala berjatuhan", "Terjadi hujan lebat", "Bumi berguncang hebat", "Matahari tidak terbit"],
+                answer: 0, explain: "Saat Nabi lahir, api sembahan kaum Majusi yang tak pernah padam selama 1000 tahun mendadak padam."
+            },
+
+            // --- TOPIC 2: Masa Menyusui & Halimah (Petak 11-20) ---
+            {
+                num: 11, cat: "Masa Menyusui", color: "bg-amber-600",
+                q: "Siapakah nama wanita pertama yang menyusui Nabi Muhammad SAW setelah ibunya?",
+                options: ["Tsuwaibah al-Aslamiyyah", "Halimah as-Sa'diyyah", "Ummu Aiman", "Khadijah"],
+                answer: 0, explain: "Wanita pertama yang sempat menyusui Nabi beberapa hari adalah Tsuwaibah al-Aslamiyyah."
+            },
+            {
+                num: 12, cat: "Masa Menyusui", color: "bg-amber-600",
+                q: "Siapakah ibu persusuan Nabi Muhammad SAW yang merawat beliau di pedesaan?",
+                options: ["Halimah as-Sa'diyyah", "Aisyah", "Fatimah", "Safiyyah"],
+                answer: 0, explain: "Ibu persusuan utama beliau yang membawa Nabi ke pedalaman Bani Sa'ad adalah Halimah as-Sa'diyyah."
+            },
+            {
+                num: 13, cat: "Masa Menyusui", color: "bg-amber-600",
+                q: "Berapa lamakah Nabi Muhammad SAW tinggal dan disusui di pedalaman Bani Sa'ad bersama Halimah?",
+                options: ["Sekitar 4 tahun", "10 tahun", "1 tahun", "7 tahun"],
+                answer: 0, explain: "Nabi Muhammad SAW tinggal di perkampungan Bani Sa'ad hingga berusia 4 tahun."
+            },
+            {
+                num: 14, cat: "Keberkahan Halimah", color: "bg-amber-600",
+                q: "Keberkahan apa yang langsung didapat Halimah saat mengasuh bayi Muhammad?",
+                options: ["Ternaknya jadi gemuk, susunya melimpah & kehidupannya kecukupan", "Menjadi kaya raya seketika", "Rumahnya berubah jadi emas", "Mendapat banyak kebun kurma"],
+                answer: 0, explain: "Ternak Halimah yang semula kurus jadi gemuk dan susunya deras, serta tanah Bani Sa'ad yang tandus jadi subur."
+            },
+            {
+                num: 15, cat: "Masa Menyusui", color: "bg-amber-600",
+                q: "Peristiwa ajaib apa yang dialami Nabi Muhammad saat berusia 4 tahun di perkampungan Halimah?",
+                options: ["Peristiwa pembelahan dada oleh Malaikat Jibril", "Peristiwa Isra Miraj", "Mendapat wahyu pertama", "Perang Badar"],
+                answer: 0, explain: "Malaikat Jibril membelah dada Nabi untuk membersihkan hatinya dari segumpal darah (bagian setan)."
+            },
+            {
+                num: 16, cat: "Masa Menyusui", color: "bg-amber-600",
+                q: "Mengapa bayi-bayi di Makkah pada masa itu biasa dititipkan untuk disusui di pedesaan?",
+                options: ["Agar mendapatkan udara desa yang bersih dan bahasa Arab yang fasih", "Karena di Makkah tidak ada makanan", "Karena tradisi berburu", "Agar anak tidak manja"],
+                answer: 0, explain: "Tradisi Arab menyusukan bayi ke desa bertujuan agar fisik anak sehat, kuat, dan berbahasa fasih."
+            },
+            {
+                num: 17, cat: "Keberkahan Halimah", color: "bg-amber-600",
+                q: "Bagaimana kondisi unta tunggangan Halimah saat membawa bayi Muhammad dari Makkah?",
+                options: ["Unta yang semula lemah dan lambat menjadi sangat cepat dan kuat", "Unta itu berjalan mundur", "Unta itu langsung bertelur", "Unta itu terbang"],
+                answer: 0, explain: "Keberkahan membuat keledai/unta Halimah yang tadinya paling lambat berjalan paling depan mendahului rombongan."
+            },
+            {
+                num: 18, cat: "Masa Menyusui", color: "bg-amber-600",
+                q: "Suku tempat asal Halimah as-Sa'diyyah adalah suku...",
+                options: ["Bani Sa'ad", "Bani Hashim", "Bani Umayyah", "Bani Tamim"],
+                answer: 0, explain: "Halimah berasal dari kabilah Bani Sa'ad bin Bakar di pedalaman Arab."
+            },
+            {
+                num: 19, cat: "Masa Menyusui", color: "bg-amber-600",
+                q: "Siapakah pengasuh wanita yang setia merawat Nabi sejak kecil setelah dari tempat Halimah?",
+                options: ["Ummu Aiman (Barakah)", "Sumayyah", "Hindun", "Khansa"],
+                answer: 0, explain: "Ummu Aiman adalah hamba sahaya peninggalan ayah Nabi yang merawat beliau hingga dewasa."
+            },
+            {
+                num: 20, cat: "Masa Menyusui", color: "bg-amber-600",
+                q: "Hikmah dari kehidupan Nabi di desa Bani Sa'ad adalah melatih beliau menjadi pribadi yang...",
+                options: ["Sederhana, tangguh, sabar, dan berbahasa fasih", "Suka berperang", "Sombong dan kaya", "Takut pada orang luar"],
+                answer: 0, explain: "Kehidupan desa membentuk pribadi Nabi yang mandiri, tahan banting, ramah, dan fasih berbahasa."
+            },
+
+            // --- TOPIC 3: Masa Yatim Piatu & Asuhan (Petak 21-30) ---
+            {
+                num: 21, cat: "Masa Yatim Piatu", color: "bg-rose-600",
+                q: "Bilakah Ayah Nabi Muhammad SAW (Abdullah) meninggal dunia?",
+                options: ["Saat Nabi masih dalam kandungan Ibunya", "Saat Nabi berusia 10 tahun", "Saat Nabi sudah dewasa", "Saat Nabi berusia 2 tahun"],
+                answer: 0, explain: "Abdullah wafat di Yatsrib (Madinah) saat Nabi Muhammad masih berada dalam kandungan ibunya."
+            },
+            {
+                num: 22, cat: "Masa Yatim Piatu", color: "bg-rose-600",
+                q: "Di usia berapakah Nabi Muhammad SAW ditinggal wafat oleh Ibunya (Aminah)?",
+                options: ["6 tahun", "2 tahun", "12 tahun", "8 tahun"],
+                answer: 0, explain: "Ibu beliau (Aminah) wafat saat Nabi berusia 6 tahun."
+            },
+            {
+                num: 23, cat: "Masa Yatim Piatu", color: "bg-rose-600",
+                q: "Di manakah tempat wafat dan dimakamkannya Ibu Nabi Muhammad (Aminah)?",
+                options: ["Abwa", "Makkah", "Jeddah", "Taif"],
+                answer: 0, explain: "Aminah wafat di desa Abwa saat perjalanan kembali dari ziarah makam suaminya di Madinah."
+            },
+            {
+                num: 24, cat: "Masa Yatim Piatu", color: "bg-rose-600",
+                q: "Siapakah yang mengasuh Nabi Muhammad SAW setelah ibunya meninggal dunia?",
+                options: ["Kakeknya (Abdul Muthalib)", "Pamannya (Abu Thalib)", "Sahabatnya", "Ibu persusuannya"],
+                answer: 0, explain: "Setelah Aminah wafat, Kakeknya yaitu Abdul Muthalib mengambil alih pengasuhan Nabi dengan penuh kasih sayang."
+            },
+            {
+                num: 25, cat: "Masa Yatim Piatu", color: "bg-rose-600",
+                q: "Di usia berapakah Nabi Muhammad ditinggal wafat oleh Kakeknya (Abdul Muthalib)?",
+                options: ["8 tahun", "6 tahun", "10 tahun", "15 tahun"],
+                answer: 0, explain: "Kakek beliau, Abdul Muthalib, meninggal dunia ketika Nabi berusia 8 tahun."
+            },
+            {
+                num: 26, cat: "Masa Yatim Piatu", color: "bg-rose-600",
+                q: "Berapa lama Kakek Abdul Muthalib mengasuh Nabi Muhammad SAW?",
+                options: ["2 tahun (usia 6 sampai 8 tahun)", "5 tahun", "10 tahun", "1 tahun"],
+                answer: 0, explain: "Abdul Muthalib mengasuh Nabi selama kurang lebih 2 tahun (sejak umur 6 hingga umur 8 tahun)."
+            },
+            {
+                num: 27, cat: "Masa Yatim Piatu", color: "bg-rose-600",
+                q: "Setelah Kakeknya wafat, Nabi Muhammad diasuh oleh pamannya bernama...",
+                options: ["Abu Thalib", "Abu Lahab", "Hamzah", "Abbas"],
+                answer: 0, explain: "Pengasuhan dilanjutkan oleh paman beliau, Abu Thalib, yang meskipun tidak kaya namun sangat mencintai Nabi."
+            },
+            {
+                num: 28, cat: "Masa Yatim Piatu", color: "bg-rose-600",
+                q: "Sebutan bagi anak yang ditinggal wafat oleh ayahnya sejak kecil adalah...",
+                options: ["Yatim", "Piatu", "Yatim Piatu", "Yatim Dhuafa"],
+                answer: 0, explain: "Anak yang ditinggal meninggal ayah disebut Yatim, jika meninggal ibu disebut Piatu."
+            },
+            {
+                num: 29, cat: "Masa Yatim Piatu", color: "bg-rose-600",
+                q: "Bagaimana sikap Abu Thalib dan keluarganya terhadap Nabi Muhammad?",
+                options: ["Sangat mencintai & mendahulukan Nabi melebihi anak-anaknya sendiri", "Sering memarahi Nabi", "Menjadikan Nabi pembantu", "Apatis dan tidak peduli"],
+                answer: 0, explain: "Abu Thalib sangat menyayangi Nabi Muhammad, selalu mendampinginya dan mendahulukannya saat makan."
+            },
+            {
+                num: 30, cat: "Masa Yatim Piatu", color: "bg-rose-600",
+                q: "Hikmah Allah menjadikan Nabi Muhammad anak yatim piatu sejak kecil adalah...",
+                options: ["Agar beliau dididik dan dijaga langsung oleh Allah tanpa bergantung pada manusia", "Agar beliau menjadi sedih", "Agar beliau ditakuti musuh", "Agar beliau tidak sekolah"],
+                answer: 0, explain: "Allah menjaga Nabi agar terhindar dari pengaruh buruk dan hanya bergantung kepada bimbingan Allah SWT."
+            },
+
+            // --- TOPIC 4: Menggembala & Berdagang (Petak 31-40) ---
+            {
+                num: 31, cat: "Menggembala & Berdagang", color: "bg-sky-600",
+                q: "Pekerjaan apa yang dilakukan Nabi Muhammad SAW pada masa kanak-kanak & remajanya?",
+                options: ["Menggembala kambing penduduk Makkah", "Menjadi petualang laut", "Menjadi pandai besi", "Membangun rumah"],
+                answer: 0, explain: "Nabi menggembala kambing milik keluarga dan penduduk Makkah untuk membantu meringankan beban pamannya."
+            },
+            {
+                num: 32, cat: "Menggembala & Berdagang", color: "bg-sky-600",
+                q: "Pelajaran akhlak penting apa yang terlatih saat seseorang menggembala kambing?",
+                options: ["Kesabaran, kepemimpinan, ketelitian, dan kasih sayang", "Keberanian untuk berkelahi", "Kekayaan yang instan", "Cara menipu"],
+                answer: 0, explain: "Menggembala kambing melatih kesabaran, kelembutan hati, serta jiwa memimpin umat manusia."
+            },
+            {
+                num: 33, cat: "Menggembala & Berdagang", color: "bg-sky-600",
+                q: "Pada usia berapa tahun Nabi Muhammad pertama kali diajak pamannya (Abu Thalib) berdagang ke Syam?",
+                options: ["12 tahun", "15 tahun", "20 tahun", "25 tahun"],
+                answer: 0, explain: "Nabi diajak Abu Thalib berdagang ke negeri Syam (Suriah) saat berusia 12 tahun."
+            },
+            {
+                num: 34, cat: "Menggembala & Berdagang", color: "bg-sky-600",
+                q: "Siapa nama Pendeta (Rahib) Kristen di Busra yang melihat tanda kenabian pada diri Nabi?",
+                options: ["Rahib Buhaira", "Waraqah bin Naufal", "Musailamah", "Ka'ab bin Ashraf"],
+                answer: 0, explain: "Rahib Buhaira mengenal tanda kenabian pada Nabi Muhammad saat rombongan dagang singgah di Busra."
+            },
+            {
+                num: 35, cat: "Menggembala & Berdagang", color: "bg-sky-600",
+                q: "Tanda ajaib apa yang dilihat Rahib Buhaira pada Nabi Muhammad saat remaja?",
+                options: ["Awan yang selalu menaungi Nabi & stempel kenabian di punggungnya", "Nabi bisa terbang", "Matahari berhenti bergerak", "Batu berbicara"],
+                answer: 0, explain: "Awan senantiasa menaungi Nabi dari terik matahari dan terdapat tanda stempel kenabian (Khatam an-Nubuwwah)."
+            },
+            {
+                num: 36, cat: "Menggembala & Berdagang", color: "bg-sky-600",
+                q: "Siapakah pengusaha wanita kaya dan mulia di Makkah yang memercayakan barang dagangannya kepada Nabi?",
+                options: ["Khadijah binti Khuwailid", "Aisyah binti Abu Bakar", "Hafshah", "Ummu Salamah"],
+                answer: 0, explain: "Khadijah binti Khuwailid tertarik pada kejujuran Nabi dan memercayakan barang dagangannya."
+            },
+            {
+                num: 37, cat: "Menggembala & Berdagang", color: "bg-sky-600",
+                q: "Siapakah nama pembantu Khadijah yang mendampingi Nabi Muhammad berdagang ke Syam?",
+                options: ["Maysarah", "Bilal", "Zaid bin Haritsah", "Anas bin Malik"],
+                answer: 0, explain: "Maysarah mendampingi Nabi dan menyaksikan langsung kejujuran serta keagungan akhlak Nabi."
+            },
+            {
+                num: 38, cat: "Menggembala & Berdagang", color: "bg-sky-600",
+                q: "Mengapa barang dagangan yang dibawa Nabi Muhammad selalu laku keras dan untung banyak?",
+                options: ["Karena Nabi jujur, tidak pernah menipu, dan menjelaskan kondisi barang apa adanya", "Karena harganya sangat murah", "Karena Nabi memaksa pembeli", "Karena ada sihir"],
+                answer: 0, explain: "Nabi jujur, ramah, dan transparan menyebutkan kekurangan/kelebihan barang tanpa bersumpah palsu."
+            },
+            {
+                num: 39, cat: "Menggembala & Berdagang", color: "bg-sky-600",
+                q: "Apa yang diceritakan Maysarah kepada Khadijah sepulang dari perjalanan berdagang?",
+                options: ["Kejujuran, kelembutan akhlak Nabi, serta peristiwa awan yang menaungi Nabi", "Nabi suka marah-marah", "Nabi menghabiskan uang dagangan", "Barang dagangan dicuri"],
+                answer: 0, explain: "Maysarah kagum dan menceritakan keutamaan akhlak serta keajaiban yang menyertai Nabi."
+            },
+            {
+                num: 40, cat: "Menggembala & Berdagang", color: "bg-sky-600",
+                q: "Di usia berapa tahun Nabi Muhammad SAW menikah dengan Sayyidah Khadijah binti Khuwailid?",
+                options: ["25 tahun", "30 tahun", "40 tahun", "18 tahun"],
+                answer: 0, explain: "Nabi Muhammad menikah dengan Khadijah saat beliau berusia 25 tahun dan Khadijah berusia 40 tahun."
+            },
+
+            // --- TOPIC 5: Gelar Al-Amin & Akhlak Mulia (Petak 41-50) ---
+            {
+                num: 41, cat: "Gelar Al-Amin", color: "bg-purple-600",
+                q: "Gelar 'Al-Amin' yang diberikan oleh penduduk Makkah kepada Nabi Muhammad artinya...",
+                options: ["Orang yang terpercaya / jujur", "Orang yang sangat kaya", "Panglima perang", "Pemimpin suku"],
+                answer: 0, explain: "Al-Amin artinya 'Orang yang dapat dipercaya' karena kejujuran Nabi yang luar biasa."
+            },
+            {
+                num: 42, cat: "Gelar Al-Amin", color: "bg-purple-600",
+                q: "Mengapa masyarakat Quraisy memberi gelar Al-Amin kepada Nabi Muhammad SAW?",
+                options: ["Karena beliau tidak pernah berbohong dan selalu menjaga amanah", "Karena beliau jago memanah", "Karena beliau keturunan raja", "Karena beliau pandai bersyair"],
+                answer: 0, explain: "Sejak muda Nabi dikenal tidak pernah berdusta, selalu menyampaikan kebenaran, dan memegang janji."
+            },
+            {
+                num: 43, cat: "Hajar Aswad", color: "bg-purple-600",
+                q: "Peristiwa penting apa yang terjadi di Makkah saat Nabi Muhammad SAW berusia 35 tahun?",
+                options: ["Renovasi Ka'bah & perselisihan peletakan Hajar Aswad", "Perang Khandaq", "Peristiwa Isra Miraj", "Fathu Makkah"],
+                answer: 0, explain: "Ketika Ka'bah direnovasi akibat banjir, terjadi perselisihan antar suku tentang siapa yang berhak meletakkan Hajar Aswad."
+            },
+            {
+                num: 44, cat: "Hajar Aswad", color: "bg-purple-600",
+                q: "Mengapa kabilah-kabilah Quraisy hampir saling berperang saat renovasi Ka'bah?",
+                options: ["Rebutan kehormatan untuk memindahkan dan meletakkan batu Hajar Aswad", "Rebutan air zam-zam", "Rebutan wilayah perdagangan", "Rebutan jabatan ketua"],
+                answer: 0, explain: "Tiap kabilah merasa paling berhak mendapat kehormatan mulia meletakkan Hajar Aswad."
+            },
+            {
+                num: 45, cat: "Hajar Aswad", color: "bg-purple-600",
+                q: "Bagaimana cara cerdas dan adil Nabi Muhammad SAW menyelesaikan perselisihan Hajar Aswad?",
+                options: ["Membentangkan kain, meletakkan Hajar Aswad di tengah, dan meminta tiap kepala suku memegang ujung kain", "Membuang batu itu ke laut", "Mengambil sendiri tanpa peduli orang lain", "Menjual batu Hajar Aswad"],
+                answer: 0, explain: "Nabi membentangkan sorban/kainnya sehingga semua kepala kabilah bersama-sama mengangkat Hajar Aswad."
+            },
+            {
+                num: 46, cat: "Hajar Aswad", color: "bg-purple-600",
+                q: "Apakah warna asli batu Hajar Aswad saat diturunkan dari Surga?",
+                options: ["Putih bersih melebihi susu", "Hitam pekat", "Merah delima", "Hijau zamrud"],
+                answer: 0, explain: "Hajar Aswad awalnya berwarna putih bersih dari surga, lalu menjadi hitam karena dosa-dosa manusia."
+            },
+            {
+                num: 47, cat: "Sifat Rasul", color: "bg-purple-600",
+                q: "Manakah di bawah ini yang merupakan 4 sifat wajib bagi Rasulullah SAW?",
+                options: ["Siddiq, Amanah, Tabligh, Fathanah", "Sombong, Khianat, Kazib, Baladah", "Marah, Takut, Malas, Lupa", "Kaya, Dermawan, Gagah, Cepat"],
+                answer: 0, explain: "Sifat wajib Rasul: Siddiq (jujur), Amanah (terpercaya), Tabligh (menyampaikan), Fathanah (cerdas)."
+            },
+            {
+                num: 48, cat: "Sifat Rasul", color: "bg-purple-600",
+                q: "Sifat wajib 'Siddiq' yang dimiliki Nabi Muhammad SAW artinya...",
+                options: ["Jujur / Benar", "Cerdas", "Dapat dipercaya", "Menyampaikan"],
+                answer: 0, explain: "Siddiq artinya jujur/benar, baik dalam perkataan maupun perbuatan."
+            },
+            {
+                num: 49, cat: "Sifat Rasul", color: "bg-purple-600",
+                q: "Sifat wajib 'Amanah' pada diri Nabi Muhammad SAW artinya...",
+                options: ["Dapat dipercaya", "Pintar", "Menyampaikan wahyu", "Pengampun"],
+                answer: 0, explain: "Amanah artinya dapat dipercaya dan selalu menjaga kebiasaan bertanggung jawab."
+            },
+            {
+                num: 50, cat: "Sifat Rasul", color: "bg-purple-600",
+                q: "Meneladani sejarah perjuangan dan akhlak Nabi Muhammad SAW akan menjadikan kita anak yang...",
+                options: ["Berakhlak mulia, dicintai Allah SWT, dan disayangi sesama", "Ditakuti kawan", "Suka menyendiri", "Menjadi sombong"],
+                answer: 0, explain: "Meneladani Sirah Nabi Muhammad SAW membentuk karakter anak soleh/solehah yang berbudi pekerti luhur."
+            }
         ];
 
-        // --- GAME STATE FOR DUEL MODE ---
-        let currentPlayer = 1; // 1 or 2
-        let players = {
-            1: { pos: 1, score: 0, elPos: 'pos-p1', elScore: 'score-p1', card: 'card-p1', color: 'red' },
-            2: { pos: 1, score: 0, elPos: 'pos-p2', elScore: 'score-p2', card: 'card-p2', color: 'blue' }
+        /* ===================================================================
+           2. SNAKES AND LADDERS POSITIONS (FOR 50 TILES)
+           =================================================================== */
+        // Ladders: bottom -> top
+        const ladders = {
+            4: 17,
+            9: 26,
+            15: 33,
+            22: 38,
+            35: 47
         };
 
-        const ladders = { 4: 16, 12: 33, 22: 43, 29: 50, 41: 62, 54: 75, 63: 81, 72: 91 };
-        const snakes = { 27: 7, 36: 15, 48: 26, 61: 39, 78: 57, 88: 67, 95: 74, 97: 86 };
+        // Snakes: head (high) -> tail (low)
+        const snakes = {
+            18: 6,
+            28: 12,
+            39: 20,
+            45: 24,
+            49: 16
+        };
 
-        const cellColors = [
-            'bg-red-200 text-red-900', 'bg-amber-200 text-amber-900',
-            'bg-emerald-200 text-emerald-900', 'bg-sky-200 text-sky-900',
-            'bg-purple-200 text-purple-900', 'bg-pink-200 text-pink-900'
+        // Snake visual color variations
+        const snakeColors = {
+            18: { body: '#DC2626', belly: '#FEF08A', head: '#B91C1C' }, // Red Snake
+            28: { body: '#7C3AED', belly: '#DDD6FE', head: '#6D28D9' }, // Purple Snake
+            39: { body: '#059669', belly: '#A7F3D0', head: '#047857' }, // Green Snake
+            45: { body: '#D97706', belly: '#FEF3C7', head: '#B45309' }, // Amber Snake
+            49: { body: '#E11D48', belly: '#FFE4E6', head: '#BE123C' }  // Rose Snake
+        };
+
+        // Game State Variables
+        let mode = 1; // 1 = Single Player, 2 = 2 Players
+        let players = [
+            { id: 1, name: "Pemain 1", color: "emerald", tile: 1, score: 0, avatar: "🕌" },
+            { id: 2, name: "Komputer", color: "sky", tile: 1, score: 0, avatar: "🤖" }
         ];
-
+        let currentTurn = 0;
         let isRolling = false;
+        let soundEnabled = true;
 
-        // --- RENDER BOARD ---
-        function createBoard() {
-            const board = document.getElementById('board');
-            board.innerHTML = `
-                <svg id="board-svg"></svg>
-                <div id="player-1" class="player-token absolute flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-red-500 text-white font-bold text-xs border-2 border-white shadow-lg">P1</div>
-                <div id="player-2" class="player-token absolute flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-blue-500 text-white font-bold text-xs border-2 border-white shadow-lg">P2</div>
-            `;
+        /* ===================================================================
+           3. AUDIO SYNTHESIZER (Web Audio API - Pure Code Sound Effects)
+           =================================================================== */
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
 
-            for (let row = 9; row >= 0; row--) {
-                const isEven = (9 - row) % 2 === 1;
-                for (let col = 0; col < 10; col++) {
-                    const actualCol = isEven ? (9 - col) : col;
-                    const cellNum = row * 10 + actualCol + 1;
-                    
-                    const cell = document.createElement('div');
-                    cell.className = `cell ${cellColors[(cellNum - 1) % cellColors.length]}`;
-                    cell.id = `cell-${cellNum}`;
-                    cell.innerHTML = `<span>${cellNum}</span>`;
-
-                    board.appendChild(cell);
-                }
-            }
-
-            setTimeout(drawRealGraphics, 100);
-            updatePlayerPositionVisual(1, 1);
-            updatePlayerPositionVisual(2, 1);
-        }
-
-        function getCellCoords(cellNum) {
-            const index = cellNum - 1;
-            const row = Math.floor(index / 10);
-            const col = index % 10;
-            const isEvenRow = row % 2 === 1;
-
-            const xIndex = isEvenRow ? (9 - col) : col;
-            const yIndex = 9 - row;
-
-            return { x: (xIndex + 0.5) * 10, y: (yIndex + 0.5) * 10 };
-        }
-
-        function drawRealGraphics() {
-            const svg = document.getElementById('board-svg');
-            svg.innerHTML = `
-                <defs>
-                    <linearGradient id="ladderGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style="stop-color:#d97706;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#b45309;stop-opacity:1" />
-                    </linearGradient>
-                    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
-                        <feDropShadow dx="2" dy="3" stdDeviation="3" flood-opacity="0.3"/>
-                    </filter>
-                </defs>
-            `;
-
-            // Draw Ladders
-            for (let start in ladders) {
-                let end = ladders[start];
-                let c1 = getCellCoords(parseInt(start));
-                let c2 = getCellCoords(end);
-
-                let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                g.setAttribute('filter', 'url(#shadow)');
-
-                let dx = c2.x - c1.x;
-                let dy = c2.y - c1.y;
-                let len = Math.sqrt(dx * dx + dy * dy);
-                let perpX = -dy / len * 2; 
-                let perpY = dx / len * 2;
-
-                let l1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                l1.setAttribute('x1', `${c1.x - perpX}%`); l1.setAttribute('y1', `${c1.y - perpY}%`);
-                l1.setAttribute('x2', `${c2.x - perpX}%`); l1.setAttribute('y2', `${c2.y - perpY}%`);
-                l1.setAttribute('stroke', 'url(#ladderGrad)'); l1.setAttribute('stroke-width', '4');
-
-                let l2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                l2.setAttribute('x1', `${c1.x + perpX}%`); l2.setAttribute('y1', `${c1.y + perpY}%`);
-                l2.setAttribute('x2', `${c2.x + perpX}%`); l2.setAttribute('y2', `${c2.y + perpY}%`);
-                l2.setAttribute('stroke', 'url(#ladderGrad)'); l2.setAttribute('stroke-width', '4');
-
-                g.appendChild(l1); g.appendChild(l2);
-
-                let steps = Math.floor(len / 6);
-                for (let i = 1; i < steps; i++) {
-                    let rung = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                    rung.setAttribute('x1', `${c1.x + (dx * (i / steps)) - perpX}%`);
-                    rung.setAttribute('y1', `${c1.y + (dy * (i / steps)) - perpY}%`);
-                    rung.setAttribute('x2', `${c1.x + (dx * (i / steps)) + perpX}%`);
-                    rung.setAttribute('y2', `${c1.y + (dy * (i / steps)) + perpY}%`);
-                    rung.setAttribute('stroke', '#78350f'); rung.setAttribute('stroke-width', '3');
-                    g.appendChild(rung);
-                }
-
-                svg.appendChild(g);
-            }
-
-            // Draw Snakes
-            for (let start in snakes) {
-                let end = snakes[start];
-                let c1 = getCellCoords(parseInt(start));
-                let c2 = getCellCoords(end);
-
-                let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                g.setAttribute('filter', 'url(#shadow)');
-
-                let midX1 = c1.x + (c2.x - c1.x) * 0.3 + 8;
-                let midY1 = c1.y + (c2.y - c1.y) * 0.3 - 5;
-                let midX2 = c1.x + (c2.x - c1.x) * 0.7 - 8;
-                let midY2 = c1.y + (c2.y - c1.y) * 0.7 + 5;
-
-                let pathStr = `M ${c1.x} ${c1.y} C ${midX1} ${midY1}, ${midX2} ${midY2}, ${c2.x} ${c2.y}`;
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new AudioCtx();
                 
-                let body = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                body.setAttribute('d', pathStr); body.setAttribute('fill', 'none');
-                body.setAttribute('stroke', '#15803d'); body.setAttribute('stroke-width', '8');
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'roll') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.exponentialRampToValueAtTime(450, now + 0.12);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.12);
+                    osc.start(now);
+                    osc.stop(now + 0.12);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.08);
+                    osc.frequency.setValueAtTime(783.99, now + 0.16);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(240, now);
+                    osc.frequency.setValueAtTime(170, now + 0.15);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'ladder') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.linearRampToValueAtTime(800, now + 0.45);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.45);
+                    osc.start(now);
+                    osc.stop(now + 0.45);
+                } else if (type === 'snake') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.linearRampToValueAtTime(200, now + 0.55);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.55);
+                    osc.start(now);
+                    osc.stop(now + 0.55);
+                } else if (type === 'win') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(392, now);
+                    osc.frequency.linearRampToValueAtTime(880, now + 0.75);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.75);
+                    osc.start(now);
+                    osc.stop(now + 0.75);
+                }
+            } catch(e) { console.log(e); }
+        }
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('audio-icon');
+            btn.className = soundEnabled ? "fa-solid fa-volume-high text-slate-700" : "fa-solid fa-volume-xmark text-rose-500";
+        }
+
+        /* ===================================================================
+           4. 50-TILE BOARD LAYOUT GENERATOR
+           =================================================================== */
+        function getTileSequence() {
+            return [
+                [41, 42, 43, 44, 45, 46, 47, 48, 49, 50],
+                [40, 39, 38, 37, 36, 35, 34, 33, 32, 31],
+                [21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+                [20, 19, 18, 17, 16, 15, 14, 13, 12, 11],
+                [1,  2,  3,  4,  5,  6,  7,  8,  9, 10]
+            ];
+        }
+
+        function buildBoardHTML() {
+            const boardEl = document.getElementById('board');
+            boardEl.innerHTML = '';
+            const sequence = getTileSequence();
+
+            sequence.forEach((row) => {
+                row.forEach((tileNum) => {
+                    const tileDiv = document.createElement('div');
+                    
+                    let tileBg = 'bg-white';
+                    let borderCol = 'border-slate-200';
+
+                    // Topic color themes
+                    if (tileNum <= 10) {
+                        tileBg = 'bg-emerald-50 hover:bg-emerald-100';
+                        borderCol = 'border-emerald-200 text-emerald-800';
+                    } else if (tileNum <= 20) {
+                        tileBg = 'bg-amber-50 hover:bg-amber-100';
+                        borderCol = 'border-amber-200 text-amber-800';
+                    } else if (tileNum <= 30) {
+                        tileBg = 'bg-rose-50 hover:bg-rose-100';
+                        borderCol = 'border-rose-200 text-rose-800';
+                    } else if (tileNum <= 40) {
+                        tileBg = 'bg-sky-50 hover:bg-sky-100';
+                        borderCol = 'border-sky-200 text-sky-800';
+                    } else {
+                        tileBg = 'bg-purple-50 hover:bg-purple-100';
+                        borderCol = 'border-purple-200 text-purple-800';
+                    }
+
+                    let overlayBadge = '';
+                    if (ladders[tileNum]) {
+                        overlayBadge = `<div class="text-[9px] font-black bg-emerald-600 text-white px-1 py-0.2 rounded shadow flex items-center gap-0.5"><i class="fa-solid fa-stairs"></i> Naik ${ladders[tileNum]}</div>`;
+                    } else if (snakes[tileNum]) {
+                        overlayBadge = `<div class="text-[9px] font-black bg-rose-600 text-white px-1 py-0.2 rounded shadow flex items-center gap-0.5"><i class="fa-solid fa-worm"></i> Turun ${snakes[tileNum]}</div>`;
+                    }
+
+                    if (tileNum === 50) {
+                        tileBg = 'bg-gradient-to-br from-amber-300 via-amber-400 to-amber-500 text-slate-900';
+                        overlayBadge = `<div class="text-[10px] font-extrabold text-amber-950 flex items-center gap-1"><i class="fa-solid fa-trophy"></i> FINISH</div>`;
+                    }
+
+                    tileDiv.id = `tile-${tileNum}`;
+                    tileDiv.className = `tile ${tileBg} border ${borderCol} rounded-xl p-1 flex flex-col justify-between items-start relative overflow-hidden select-none cursor-pointer`;
+                    tileDiv.onclick = () => showTileInfo(tileNum);
+
+                    tileDiv.innerHTML = `
+                        <div class="flex justify-between items-center w-full">
+                            <span class="font-title font-bold text-xs md:text-sm leading-none px-1 py-0.5 rounded-md bg-white/80 shadow-sm">${tileNum}</span>
+                        </div>
+                        <div class="my-auto w-full flex justify-center">
+                            ${overlayBadge}
+                        </div>
+                    `;
+
+                    boardEl.appendChild(tileDiv);
+                });
+            });
+
+            setTimeout(drawSVGOverlay, 120);
+            updatePawnsDisplay();
+        }
+
+        function getTileCenter(tileNum) {
+            const tileEl = document.getElementById(`tile-${tileNum}`);
+            const wrapper = document.getElementById('board-wrapper');
+            if (!tileEl || !wrapper) return { x: 0, y: 0 };
+
+            const tRect = tileEl.getBoundingClientRect();
+            const wRect = wrapper.getBoundingClientRect();
+
+            return {
+                x: (tRect.left + tRect.width / 2) - wRect.left,
+                y: (tRect.top + tRect.height / 2) - wRect.top
+            };
+        }
+
+        /* ===================================================================
+           5. REALISTIC SVG VECTOR LADDERS AND CARTOON SNAKES RENDERER
+           =================================================================== */
+        function drawSVGOverlay() {
+            const svg = document.getElementById('svg-overlay');
+            if (!svg) return;
+            svg.innerHTML = ''; // Reset SVG
+
+            // --- A. DRAW REALISTIC WOODEN LADDERS ---
+            for (let [start, end] of Object.entries(ladders)) {
+                const p1 = getTileCenter(start); // Bottom
+                const p2 = getTileCenter(end);   // Top
+
+                const dx = p2.x - p1.x;
+                const dy = p2.y - p1.y;
+                const len = Math.hypot(dx, dy);
+
+                if (len === 0) continue;
+
+                // Perpendicular vector for rail spacing (ladder width ~16px)
+                const railOffset = 9;
+                const nx = (-dy / len) * railOffset;
+                const ny = (dx / len) * railOffset;
+
+                // Rail Coordinates
+                const r1_left  = { x: p1.x + nx, y: p1.y + ny };
+                const r1_right = { x: p1.x - nx, y: p1.y - ny };
+                const r2_left  = { x: p2.x + nx, y: p2.y + ny };
+                const r2_right = { x: p2.x - nx, y: p2.y - ny };
+
+                const ladderGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+                // 1. Draw Rungs (Steps along ladder)
+                const numRungs = Math.max(3, Math.floor(len / 22));
+                for (let i = 1; i < numRungs; i++) {
+                    const t = i / numRungs;
+                    const rx1 = r1_left.x + (r2_left.x - r1_left.x) * t;
+                    const ry1 = r1_left.y + (r2_left.y - r1_left.y) * t;
+                    const rx2 = r1_right.x + (r2_right.x - r1_right.x) * t;
+                    const ry2 = r1_right.y + (r2_right.y - r1_right.y) * t;
+
+                    const rung = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    rung.setAttribute('x1', rx1); rung.setAttribute('y1', ry1);
+                    rung.setAttribute('x2', rx2); rung.setAttribute('y2', ry2);
+                    rung.setAttribute('stroke', '#B45309'); // Wood Amber-700
+                    rung.setAttribute('stroke-width', '4');
+                    rung.setAttribute('stroke-linecap', 'round');
+                    ladderGroup.appendChild(rung);
+                }
+
+                // 2. Draw Left & Right Wooden Side Rails
+                [ [r1_left, r2_left], [r1_right, r2_right] ].forEach(([startPt, endPt]) => {
+                    const railShadow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    railShadow.setAttribute('x1', startPt.x + 1); railShadow.setAttribute('y1', startPt.y + 2);
+                    railShadow.setAttribute('x2', endPt.x + 1); railShadow.setAttribute('y2', endPt.y + 2);
+                    railShadow.setAttribute('stroke', 'rgba(0,0,0,0.25)');
+                    railShadow.setAttribute('stroke-width', '5');
+                    ladderGroup.appendChild(railShadow);
+
+                    const rail = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    rail.setAttribute('x1', startPt.x); rail.setAttribute('y1', startPt.y);
+                    rail.setAttribute('x2', endPt.x); rail.setAttribute('y2', endPt.y);
+                    rail.setAttribute('stroke', '#78350F'); // Dark Wood
+                    rail.setAttribute('stroke-width', '4.5');
+                    rail.setAttribute('stroke-linecap', 'round');
+                    ladderGroup.appendChild(rail);
+                });
+
+                svg.appendChild(ladderGroup);
+            }
+
+            // --- B. DRAW REALISTIC CARTOON SNAKES ---
+            for (let [start, end] of Object.entries(snakes)) {
+                const p1 = getTileCenter(start); // Head (High Tile)
+                const p2 = getTileCenter(end);   // Tail (Low Tile)
+
+                const colors = snakeColors[start] || { body: '#DC2626', belly: '#FEF08A', head: '#B91C1C' };
+
+                // Calculate curved wavy snake body path using quadratic bezier curve
+                const midX = (p1.x + p2.x) / 2 + (start % 2 === 0 ? 35 : -35);
+                const midY = (p1.y + p2.y) / 2 - 15;
+
+                const pathD = `M ${p1.x} ${p1.y} Q ${midX} ${midY} ${p2.x} ${p2.y}`;
+
+                const snakeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+                // 1. Outer Body Shadow
+                const bodyShadow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                bodyShadow.setAttribute('d', pathD);
+                bodyShadow.setAttribute('fill', 'none');
+                bodyShadow.setAttribute('stroke', 'rgba(0,0,0,0.25)');
+                bodyShadow.setAttribute('stroke-width', '14');
+                bodyShadow.setAttribute('stroke-linecap', 'round');
+                snakeGroup.appendChild(bodyShadow);
+
+                // 2. Main Snake Body
+                const body = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                body.setAttribute('d', pathD);
+                body.setAttribute('fill', 'none');
+                body.setAttribute('stroke', colors.body);
+                body.setAttribute('stroke-width', '11');
                 body.setAttribute('stroke-linecap', 'round');
+                snakeGroup.appendChild(body);
 
-                let head = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                head.setAttribute('cx', `${c1.x}%`); head.setAttribute('cy', `${c1.y}%`);
-                head.setAttribute('r', '7'); head.setAttribute('fill', '#166534');
+                // 3. Snake Belly Stripe / Scale Pattern
+                const belly = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                belly.setAttribute('d', pathD);
+                belly.setAttribute('fill', 'none');
+                belly.setAttribute('stroke', colors.belly);
+                belly.setAttribute('stroke-width', '4');
+                belly.setAttribute('stroke-dasharray', '5 4');
+                belly.setAttribute('stroke-linecap', 'round');
+                snakeGroup.appendChild(belly);
 
-                g.appendChild(body); g.appendChild(head);
-                svg.appendChild(g);
+                // 4. Snake Head (At P1) with Cartoon Eyes & Tongue
+                const headGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+                // Head Angle toward curve mid-point
+                const angle = Math.atan2(midY - p1.y, midX - p1.x) * (180 / Math.PI);
+                headGroup.setAttribute('transform', `translate(${p1.x}, ${p1.y}) rotate(${angle})`);
+
+                // Snake Forked Tongue (Red Y-shape)
+                const tongue = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                tongue.setAttribute('d', 'M -12 0 L -18 -3 M -18 -3 L -22 -5 M -18 -3 L -22 -1');
+                tongue.setAttribute('stroke', '#DC2626');
+                tongue.setAttribute('stroke-width', '2');
+                tongue.setAttribute('fill', 'none');
+                headGroup.appendChild(tongue);
+
+                // Head Base Oval
+                const headCircle = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                headCircle.setAttribute('cx', '-3');
+                headCircle.setAttribute('cy', '0');
+                headCircle.setAttribute('rx', '9');
+                headCircle.setAttribute('ry', '7');
+                headCircle.setAttribute('fill', colors.head);
+                headGroup.appendChild(headCircle);
+
+                // Eye White
+                const eyeWhite = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                eyeWhite.setAttribute('cx', '-4');
+                eyeWhite.setAttribute('cy', '-3');
+                eyeWhite.setAttribute('r', '3');
+                eyeWhite.setAttribute('fill', '#FFFFFF');
+                headGroup.appendChild(eyeWhite);
+
+                // Eye Pupil
+                const eyePupil = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                eyePupil.setAttribute('cx', '-5');
+                eyePupil.setAttribute('cy', '-3');
+                eyePupil.setAttribute('r', '1.5');
+                eyePupil.setAttribute('fill', '#000000');
+                headGroup.appendChild(eyePupil);
+
+                snakeGroup.appendChild(headGroup);
+
+                // 5. Snake Tail (At P2)
+                const tailTip = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                tailTip.setAttribute('cx', p2.x);
+                tailTip.setAttribute('cy', p2.y);
+                tailTip.setAttribute('r', '3');
+                tailTip.setAttribute('fill', colors.body);
+                snakeGroup.appendChild(tailTip);
+
+                svg.appendChild(snakeGroup);
             }
         }
 
-        function updatePlayerPositionVisual(pNum, pos) {
-            const token = document.getElementById(`player-${pNum}`);
-            const coords = getCellCoords(pos);
-            
-            // Offset slight position so tokens don't completely overlap
-            const offsetX = pNum === 1 ? -18 : -6;
-            const offsetY = pNum === 1 ? -18 : -6;
+        window.addEventListener('resize', drawSVGOverlay);
 
-            token.style.left = `calc(${coords.x}% + ${offsetX}px)`;
-            token.style.top = `calc(${coords.y}% + ${offsetY}px)`;
-            document.getElementById(players[pNum].elPos).innerText = pos;
+        /* ===================================================================
+           6. PAWN MOVEMENT & DISPLAY
+           =================================================================== */
+        function updatePawnsDisplay() {
+            document.querySelectorAll('.pawn-element').forEach(el => el.remove());
+
+            const wrapper = document.getElementById('board-wrapper');
+            if (!wrapper) return;
+
+            players.forEach((p, idx) => {
+                if (mode === 1 && p.id === 2) return;
+
+                const pos = getTileCenter(p.tile);
+                const pawnDiv = document.createElement('div');
+                pawnDiv.className = `pawn pawn-element absolute w-7 h-7 md:w-8 md:h-8 rounded-full border-2 border-white shadow-xl flex items-center justify-center font-bold text-xs md:text-sm transform -translate-x-1/2 -translate-y-1/2 ${p.color === 'emerald' ? 'bg-emerald-600 text-white' : 'bg-sky-600 text-white'}`;
+                
+                const offsetX = (idx === 1 && players[0].tile === players[1].tile) ? 10 : 0;
+                pawnDiv.style.left = `${pos.x + offsetX}px`;
+                pawnDiv.style.top = `${pos.y}px`;
+
+                pawnDiv.innerHTML = p.avatar;
+                wrapper.appendChild(pawnDiv);
+            });
+
+            document.getElementById('p1-pos').innerText = players[0].tile;
+            document.getElementById('p1-score').innerText = `${players[0].score} Poin`;
+
+            document.getElementById('p2-pos').innerText = players[1].tile;
+            document.getElementById('p2-score').innerText = `${players[1].score} Poin`;
         }
 
-        // --- DUEL MECHANICS ---
+        /* ===================================================================
+           7. DICE ROLLING & GAME FLOW
+           =================================================================== */
+        function changeGameMode(newMode) {
+            mode = parseInt(newMode);
+            const p2Card = document.getElementById('p2-card');
+            const p2Name = document.getElementById('p2-name');
+
+            if (mode === 1) {
+                p2Name.innerText = "Komputer (Bot)";
+                p2Card.classList.add('opacity-60');
+            } else {
+                p2Name.innerText = "Pemain 2 (Biru)";
+                p2Card.classList.remove('opacity-60');
+            }
+            resetGame();
+        }
+
         function rollDice() {
             if (isRolling) return;
             isRolling = true;
 
-            const diceEl = document.getElementById('dice');
-            const btn = document.getElementById('roll-btn');
-            btn.disabled = true; btn.classList.add('opacity-50');
+            const btnRoll = document.getElementById('btn-roll');
+            const diceBox = document.getElementById('dice-box');
+            const diceVal = document.getElementById('dice-value');
 
-            diceEl.classList.add('dice-rolling');
-            const diceIcons = ['fa-dice-one', 'fa-dice-two', 'fa-dice-three', 'fa-dice-four', 'fa-dice-five', 'fa-dice-six'];
+            btnRoll.disabled = true;
+            btnRoll.classList.add('opacity-50', 'cursor-not-allowed');
 
-            let count = 0;
-            const rollInterval = setInterval(() => {
-                const rand = Math.floor(Math.random() * 6);
-                diceEl.innerHTML = `<i class="fa-solid ${diceIcons[rand]}"></i>`;
-                count++;
-                if (count > 10) {
-                    clearInterval(rollInterval);
-                    const diceValue = Math.floor(Math.random() * 6) + 1;
-                    diceEl.innerHTML = `<i class="fa-solid ${diceIcons[diceValue - 1]}"></i>`;
-                    diceEl.classList.remove('dice-rolling');
-                    
-                    moveCurrentPlayer(diceValue);
-                }
-            }, 50);
-        }
+            playSound('roll');
 
-        function moveCurrentPlayer(steps) {
-            let p = players[currentPlayer];
-            let nextPos = p.pos + steps;
-            if (nextPos > 100) nextPos = 100 - (nextPos - 100);
-
-            let currentStep = p.pos;
-            const stepInterval = setInterval(() => {
-                if (currentStep < nextPos) currentStep++;
-                else if (currentStep > nextPos) currentStep--;
-
-                updatePlayerPositionVisual(currentPlayer, currentStep);
-
-                if (currentStep === nextPos) {
-                    clearInterval(stepInterval);
-                    p.pos = nextPos;
-                    triggerQuiz(p.pos);
-                }
-            }, 200);
-        }
-
-        function triggerQuiz(cellNum) {
-            let qIndex = (cellNum - 1) % questionsData.length;
-            let qData = questionsData[qIndex];
-
-            const badge = document.getElementById('quiz-badge');
-            badge.className = `px-3 py-1 rounded-full text-xs font-bold text-white bg-${players[currentPlayer].color}-500 flex items-center gap-1`;
-            badge.innerHTML = `<i class="fa-solid fa-user text-xs"></i> Kuis Giliran Pemain ${currentPlayer}`;
-
-            document.getElementById('modal-cell-num').innerText = cellNum;
-            document.getElementById('quiz-question').innerText = qData.q;
+            let rolls = 0;
+            const diceFaces = ['🎲', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
             
-            const optionsContainer = document.getElementById('quiz-options');
+            const interval = setInterval(() => {
+                const randomVal = Math.floor(Math.random() * 6) + 1;
+                diceVal.innerText = diceFaces[randomVal];
+                diceBox.style.transform = `rotate(${rolls * 90}deg) scale(1.08)`;
+                rolls++;
+
+                if (rolls > 10) {
+                    clearInterval(interval);
+                    diceBox.style.transform = 'rotate(0deg) scale(1)';
+                    
+                    const finalRoll = Math.floor(Math.random() * 6) + 1;
+                    diceVal.innerText = finalRoll;
+
+                    document.getElementById('roll-status').innerText = `Dadu mendapatkan angka ${finalRoll}!`;
+                    setTimeout(() => movePlayerSteps(players[currentTurn], finalRoll), 350);
+                }
+            }, 75);
+        }
+
+        function movePlayerSteps(player, steps) {
+            let currentStep = 0;
+
+            const stepInterval = setInterval(() => {
+                if (currentStep < steps) {
+                    if (player.tile < 50) {
+                        player.tile++;
+                        updatePawnsDisplay();
+                        playSound('roll');
+                    }
+                    currentStep++;
+                } else {
+                    clearInterval(stepInterval);
+                    setTimeout(() => triggerQuestionForTile(player.tile), 300);
+                }
+            }, 300);
+        }
+
+        /* ===================================================================
+           8. QUESTION & ANSWER HANDLERS
+           =================================================================== */
+        function triggerQuestionForTile(tileNum) {
+            const qData = questionsDB[tileNum - 1];
+
+            document.getElementById('q-number').innerText = `Petak #${tileNum}`;
+            document.getElementById('q-category').innerText = qData.cat;
+            document.getElementById('q-category').className = `px-3 py-1 text-white font-title text-xs font-bold rounded-full shadow ${qData.color}`;
+            document.getElementById('q-text').innerText = qData.q;
+
+            const optionsContainer = document.getElementById('q-options');
             optionsContainer.innerHTML = '';
 
-            const feedback = document.getElementById('quiz-feedback');
-            feedback.className = 'hidden p-3 rounded-xl text-center font-bold text-sm mb-4';
-            document.getElementById('next-btn').classList.add('hidden');
-
-            qData.a.forEach((opt, idx) => {
+            const optionLabels = ['A', 'B', 'C', 'D'];
+            qData.options.forEach((opt, idx) => {
                 const btn = document.createElement('button');
-                btn.className = 'w-full text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-amber-400 hover:bg-amber-50 font-semibold transition-all btn-bounce text-slate-700 flex items-center justify-between';
-                btn.innerHTML = `<span>${String.fromCharCode(65 + idx)}. ${opt}</span> <i class="fa-regular fa-circle text-slate-300"></i>`;
-                btn.onclick = () => checkAnswer(idx, qData.correct, cellNum, btn);
+                btn.className = `w-full text-left p-2.5 md:p-3 rounded-2xl bg-white hover:bg-slate-100 border-2 border-slate-200 font-bold text-xs md:text-sm text-slate-800 transition flex items-center gap-3 shadow-sm hover:border-emerald-500 active:scale-98`;
+                btn.onclick = () => handleAnswer(idx, qData);
+
+                btn.innerHTML = `
+                    <span class="w-7 h-7 rounded-xl bg-slate-100 font-title font-bold text-emerald-700 flex items-center justify-center border border-slate-300 text-xs">${optionLabels[idx]}</span>
+                    <span>${opt}</span>
+                `;
                 optionsContainer.appendChild(btn);
             });
 
-            const modal = document.getElementById('quiz-modal');
-            const card = document.getElementById('modal-card');
-            modal.classList.remove('hidden');
+            openModal('modal-question');
+        }
+
+        function handleAnswer(selectedIdx, qData) {
+            closeModal('modal-question');
+            const player = players[currentTurn];
+            const isCorrect = (selectedIdx === qData.answer);
+
+            let feedbackTitle = "";
+            let feedbackMsg = "";
+            let iconClass = "";
+            let iconBgClass = "";
+
+            if (isCorrect) {
+                playSound('correct');
+                player.score += 10;
+                feedbackTitle = "Masya Allah, Benar! (+10 Poin)";
+                iconClass = "fa-solid fa-check text-emerald-600";
+                iconBgClass = "bg-emerald-100 border-2 border-emerald-300";
+                feedbackMsg = `${qData.explain}`;
+
+                // Check Ladder Climb
+                if (ladders[player.tile]) {
+                    const nextTile = ladders[player.tile];
+                    setTimeout(() => playSound('ladder'), 450);
+                    feedbackMsg += `<br><br>🧱 <strong>Alhamdulillah! Kamu Memanjat Tangga Kayu!</strong> Naik dari petak ${player.tile} ke petak ${nextTile}!`;
+                    player.tile = nextTile;
+                }
+
+                if (snakes[player.tile]) {
+                    feedbackMsg += `<br><br>🛡️ <strong>Hebat!</strong> Karena jawabanmu benar, kamu selamat dari patukan ular!`;
+                }
+
+            } else {
+                playSound('wrong');
+                feedbackTitle = "Jawaban Belum Tepat!";
+                iconClass = "fa-solid fa-xmark text-rose-600";
+                iconBgClass = "bg-rose-100 border-2 border-rose-300";
+                feedbackMsg = `Jawaban tepat: <strong>${qData.options[qData.answer]}</strong>.<br><br>${qData.explain}`;
+
+                // Check Snake Penalty
+                if (snakes[player.tile]) {
+                    const lowerTile = snakes[player.tile];
+                    setTimeout(() => playSound('snake'), 450);
+                    feedbackMsg += `<br><br>🐍 <strong>Aww, Dipatuk Ular!</strong> Karena salah, kamu merosot turun ke petak ${lowerTile}!`;
+                    player.tile = lowerTile;
+                } else if (ladders[player.tile]) {
+                    feedbackMsg += `<br><br>⚠️ Kamu belum bisa memanjat tangga karena jawaban belum tepat.`;
+                } else {
+                    if (player.tile > 1) {
+                        player.tile--;
+                        feedbackMsg += `<br><br>Mundur 1 petak ke petak ${player.tile}.`;
+                    }
+                }
+            }
+
+            updatePawnsDisplay();
+
+            document.getElementById('fb-title').innerText = feedbackTitle;
+            document.getElementById('fb-msg').innerHTML = feedbackMsg;
+            document.getElementById('fb-icon').className = iconClass;
+            document.getElementById('fb-icon-bg').className = `w-16 h-16 rounded-full flex items-center justify-center text-3xl shadow-lg my-1 ${iconBgClass}`;
+
+            openModal('modal-feedback');
+        }
+
+        function closeFeedback() {
+            closeModal('modal-feedback');
+
+            const player = players[currentTurn];
+
+            // Win condition Check
+            if (player.tile >= 50) {
+                player.tile = 50;
+                updatePawnsDisplay();
+                triggerWin(player);
+                return;
+            }
+
+            // Switch turn
+            if (mode === 2) {
+                currentTurn = (currentTurn === 0) ? 1 : 0;
+            } else {
+                currentTurn = 0;
+            }
+
+            updateTurnBanner();
+
+            isRolling = false;
+            const btnRoll = document.getElementById('btn-roll');
+            btnRoll.disabled = false;
+            btnRoll.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            if (mode === 2 && currentTurn === 1) {
+                document.getElementById('roll-status').innerText = "Giliran Pemain 2 untuk melempar dadu!";
+            } else {
+                document.getElementById('roll-status').innerText = "Klik dadu atau tombol untuk melangkah!";
+            }
+        }
+
+        function updateTurnBanner() {
+            const banner = document.getElementById('turn-banner');
+            const turnText = document.getElementById('turn-text');
+
+            if (currentTurn === 0) {
+                banner.className = "w-full py-2.5 px-4 rounded-2xl mb-3 text-white font-title font-bold text-base md:text-lg shadow-md transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600";
+                turnText.innerText = "Giliran: Pemain 1 (Hijau)";
+            } else {
+                banner.className = "w-full py-2.5 px-4 rounded-2xl mb-3 text-white font-title font-bold text-base md:text-lg shadow-md transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-sky-600 to-blue-600";
+                turnText.innerText = mode === 1 ? "Giliran: Komputer" : "Giliran: Pemain 2 (Biru)";
+            }
+        }
+
+        function triggerWin(winner) {
+            playSound('win');
+            triggerConfetti();
+
+            document.getElementById('winner-text').innerText = `${winner.name} Menamatkan 50 Petak Sejarah Nabi Muhammad SAW!`;
+            
+            const stats = document.getElementById('winner-stats');
+            stats.innerHTML = `
+                <div class="flex justify-between"><span>Pemain 1 (Hijau):</span> <strong>${players[0].score} Poin</strong></div>
+                ${mode === 2 ? `<div class="flex justify-between"><span>Pemain 2 (Biru):</span> <strong>${players[1].score} Poin</strong></div>` : ''}
+                <div class="mt-2 text-center text-emerald-700 font-bold">Masya Allah! Kamu menguasai seluruh materi Sejarah Nabi Muhammad SAW!</div>
+            `;
+
+            openModal('modal-winner');
+        }
+
+        function showTileInfo(tileNum) {
+            const q = questionsDB[tileNum - 1];
+            document.getElementById('roll-status').innerText = `Petak #${tileNum}: Topik ${q.cat}`;
+        }
+
+        /* ===================================================================
+           9. UTILITIES & MODAL ANIMATIONS & CONFETTI
+           =================================================================== */
+        function openModal(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.remove('hidden');
             setTimeout(() => {
-                card.classList.remove('scale-95', 'opacity-0');
-                card.classList.add('scale-100', 'opacity-100');
+                const card = el.firstElementChild;
+                if (card) {
+                    card.classList.remove('scale-95', 'opacity-0');
+                    card.classList.add('scale-100', 'opacity-100');
+                }
             }, 10);
         }
 
-        function checkAnswer(selectedIdx, correctIdx, cellNum, clickedBtn) {
-            const options = document.getElementById('quiz-options').children;
-            const feedback = document.getElementById('quiz-feedback');
-            const nextBtn = document.getElementById('next-btn');
+        function closeModal(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const card = el.firstElementChild;
+            if (card) {
+                card.classList.remove('scale-100', 'opacity-100');
+                card.classList.add('scale-95', 'opacity-0');
+            }
+            setTimeout(() => el.classList.add('hidden'), 200);
+        }
 
-            for (let btn of options) {
-                btn.disabled = true;
-                btn.classList.remove('btn-bounce', 'hover:border-amber-400', 'hover:bg-amber-50');
+        function resetGame() {
+            players[0].tile = 1; players[0].score = 0;
+            players[1].tile = 1; players[1].score = 0;
+            currentTurn = 0;
+            isRolling = false;
+
+            const btnRoll = document.getElementById('btn-roll');
+            btnRoll.disabled = false;
+            btnRoll.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            document.getElementById('dice-value').innerText = '🎲';
+            document.getElementById('roll-status').innerText = 'Klik dadu untuk melangkah!';
+
+            updateTurnBanner();
+            updatePawnsDisplay();
+        }
+
+        function triggerConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ['#059669', '#F59E0B', '#10B981', '#0284C7', '#E11D48'];
+
+            for (let i = 0; i < 130; i++) {
+                particles.push({
+                    x: canvas.width / 2,
+                    y: canvas.height / 2,
+                    vx: (Math.random() - 0.5) * 14,
+                    vy: (Math.random() - 0.5) * 14 - 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    radius: Math.random() * 6 + 3,
+                    alpha: 1
+                });
             }
 
-            let p = players[currentPlayer];
-            let otherPlayerNum = currentPlayer === 1 ? 2 : 1;
-            let otherP = players[otherPlayerNum];
+            function animateConfetti() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let alive = false;
 
-            if (selectedIdx === correctIdx) {
-                clickedBtn.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-800');
-                clickedBtn.querySelector('i').className = 'fa-solid fa-circle-check text-emerald-600';
-                
-                feedback.classList.remove('hidden');
-                feedback.classList.add('bg-emerald-100', 'text-emerald-800');
-                
-                p.score += 10;
-                document.getElementById(p.elScore).innerText = p.score;
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.15;
+                    p.alpha -= 0.01;
 
-                // Feature: Knock opponent back if landing on same cell!
-                let knockText = "";
-                if (p.pos === otherP.pos && p.pos > 1) {
-                    otherP.pos = Math.max(1, otherP.pos - 1);
-                    updatePlayerPositionVisual(otherPlayerNum, otherP.pos);
-                    knockText = `<br><span class="text-xs text-red-600 font-extrabold">⚔️ FITUR DUEL: Pemain ${otherPlayerNum} terdorong mundur 1 petak!</span>`;
-                }
+                    if (p.alpha > 0) {
+                        alive = true;
+                        ctx.save();
+                        ctx.globalAlpha = p.alpha;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                        ctx.fillStyle = p.color;
+                        ctx.fill();
+                        ctx.restore();
+                    }
+                });
 
-                if (ladders[cellNum]) {
-                    feedback.innerHTML = `<i class="fa-solid fa-circle-check"></i> Jawaban Benar! (+10 Skor)<br><span class="text-xs text-emerald-700">Naik TANGGA ke petak ${ladders[cellNum]}!</span>` + knockText;
-                    p.pos = ladders[cellNum];
-                } else if (snakes[cellNum]) {
-                    feedback.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Jawaban Benar! Tapi ada ULAR, turun ke petak ${snakes[cellNum]}!`;
-                    p.pos = snakes[cellNum];
-                } else {
-                    feedback.innerHTML = `<i class="fa-solid fa-circle-check"></i> Jawaban Benar! (+10 Skor)` + knockText;
-                }
-
-                confetti({ particleCount: 40, spread: 50, origin: { y: 0.7 } });
-
-            } else {
-                clickedBtn.classList.add('bg-red-100', 'border-red-500', 'text-red-800');
-                clickedBtn.querySelector('i').className = 'fa-solid fa-circle-xmark text-red-600';
-                options[correctIdx].classList.add('bg-emerald-50', 'border-emerald-400');
-
-                feedback.classList.remove('hidden');
-                feedback.classList.add('bg-red-100', 'text-red-800');
-                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Jawaban Salah!<br><span class="text-xs">Kamu terlempar mundur 1 petak!</span>`;
-                
-                p.pos = Math.max(1, p.pos - 1);
+                if (alive) requestAnimationFrame(animateConfetti);
             }
 
-            nextBtn.classList.remove('hidden');
+            animateConfetti();
         }
 
-        function closeModal() {
-            const modal = document.getElementById('quiz-modal');
-            const card = document.getElementById('modal-card');
-            
-            card.classList.remove('scale-100', 'opacity-100');
-            card.classList.add('scale-95', 'opacity-0');
-
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                updatePlayerPositionVisual(currentPlayer, players[currentPlayer].pos);
-
-                // Check Win
-                if (players[currentPlayer].pos >= 100) {
-                    showWinModal();
-                    return;
-                }
-
-                // Switch Turn
-                switchTurn();
-
-                const btn = document.getElementById('roll-btn');
-                btn.disabled = false; btn.classList.remove('opacity-50');
-                isRolling = false;
-            }, 200);
-        }
-
-        function switchTurn() {
-            currentPlayer = currentPlayer === 1 ? 2 : 1;
-            const turnInd = document.getElementById('turn-indicator');
-            const cardP1 = document.getElementById('card-p1');
-            const cardP2 = document.getElementById('card-p2');
-
-            if (currentPlayer === 1) {
-                turnInd.className = "px-4 py-1.5 rounded-full bg-red-500 text-white font-bold text-xs mb-3 shadow-sm flex items-center gap-1";
-                turnInd.innerHTML = `<i class="fa-solid fa-play"></i> Giliran Pemain 1`;
-                cardP1.classList.add('turn-active', 'opacity-100');
-                cardP2.classList.remove('turn-active'); cardP2.classList.add('opacity-70');
-            } else {
-                turnInd.className = "px-4 py-1.5 rounded-full bg-blue-500 text-white font-bold text-xs mb-3 shadow-sm flex items-center gap-1";
-                turnInd.innerHTML = `<i class="fa-solid fa-play"></i> Giliran Pemain 2`;
-                cardP2.classList.add('turn-active', 'opacity-100');
-                cardP1.classList.remove('turn-active'); cardP1.classList.add('opacity-70');
-            }
-        }
-
-        function showWinModal() {
-            document.getElementById('final-score-p1').innerText = players[1].score;
-            document.getElementById('final-score-p2').innerText = players[2].score;
-            
-            const winTitle = document.getElementById('winner-title');
-            winTitle.innerText = `PEMAIN ${currentPlayer} MENANG! 🎉`;
-            winTitle.className = `text-2xl font-extrabold text-${players[currentPlayer].color}-600 mb-1`;
-
-            document.getElementById('win-modal').classList.remove('hidden');
-            confetti({ particleCount: 180, spread: 100, origin: { y: 0.6 } });
-        }
-
-        window.addEventListener('resize', drawRealGraphics);
-        window.onload = createBoard;
+        window.onload = function() {
+            buildBoardHTML();
+            resetGame();
+        };
     </script>
 </body>
 </html>
