@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ular Tangga PAI SD Kelas 5: Sejarah Nabi Muhammad SAW</title>
+    <title>Gim Duel Ular Tangga PAI: Sejarah Nabi Muhammad SAW</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -12,7 +12,7 @@
         
         body {
             font-family: 'Fredoka', cursive, sans-serif;
-            background: linear-gradient(135deg, #a8ff78 0%, #78ffd6 100%);
+            background: linear-gradient(135deg, #2dd4bf 0%, #3b82f6 100%);
             min-height: 100vh;
         }
 
@@ -45,7 +45,6 @@
             box-shadow: inset 0 0 5px rgba(0,0,0,0.06);
         }
 
-        /* SVG layer for Real Snakes & Ladders Graphics */
         #board-svg {
             position: absolute;
             top: 0;
@@ -73,9 +72,9 @@
         }
 
         .glass-panel {
-            background: rgba(255, 255, 255, 0.88);
+            background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(12px);
-            border: 2px solid rgba(255, 255, 255, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.7);
         }
 
         .btn-bounce {
@@ -84,6 +83,12 @@
         .btn-bounce:active {
             transform: scale(0.93);
         }
+
+        .turn-active {
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.8);
+            border-color: #f59e0b !important;
+            transform: scale(1.03);
+        }
     </style>
 </head>
 <body class="p-2 md:p-6 text-slate-800">
@@ -91,15 +96,15 @@
     <div class="max-w-6xl mx-auto">
         <!-- Header -->
         <header class="text-center mb-4">
-            <h1 class="text-3xl md:text-5xl font-extrabold text-emerald-800 drop-shadow-md tracking-wide">
-                <i class="fa-solid fa-mosque text-amber-500"></i> Ular Tangga PAI <i class="fa-solid fa-star text-amber-400"></i>
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white drop-shadow-md tracking-wide">
+                <i class="fa-solid fa-swords text-amber-300"></i> DUEL ULAR TANGGA PAI <i class="fa-solid fa-star text-amber-300"></i>
             </h1>
-            <p class="text-base md:text-lg text-emerald-900 font-semibold mt-1">
-                Kisah Teladan Sejarah Nabi Muhammad SAW - SD Kelas 5
+            <p class="text-base md:text-lg text-emerald-100 font-semibold mt-1">
+                Adu Cerdas Sejarah Nabi Muhammad SAW - SD Kelas 5
             </p>
         </header>
 
-        <!-- Main Content -->
+        <!-- Main Grid Layout -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
             <!-- Papan Permainan (8 cols) -->
@@ -109,59 +114,67 @@
                     <div id="board" class="board-grid rounded-2xl overflow-hidden shadow-inner">
                         <svg id="board-svg"></svg>
 
-                        <!-- Gambar Grafis Dekorasi Ular & Tangga Asli (PNG/SVG Rendering via Canvas/SVG) -->
-                        <div id="player-1" class="player-token absolute flex items-center justify-center w-7 h-7 md:w-9 md:h-9 rounded-full bg-red-500 text-white font-bold text-xs border-2 border-white shadow-lg">
-                            <i class="fa-solid fa-child text-sm"></i>
+                        <!-- Token Pemain 1 (Merah) -->
+                        <div id="player-1" class="player-token absolute flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-red-500 text-white font-bold text-xs border-2 border-white shadow-lg">
+                            P1
+                        </div>
+                        <!-- Token Pemain 2 (Biru) -->
+                        <div id="player-2" class="player-token absolute flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-blue-500 text-white font-bold text-xs border-2 border-white shadow-lg">
+                            P2
                         </div>
                     </div>
 
                 </div>
             </div>
 
-            <!-- Kontrol & Skor (4 cols) -->
+            <!-- Panel Kontrol Duel & Skor (4 cols) -->
             <div class="lg:col-span-4 flex flex-col gap-4">
                 
-                <div class="glass-panel p-5 rounded-3xl shadow-lg border-2 border-emerald-300">
-                    <h2 class="text-xl font-bold text-emerald-800 mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-gamepad text-amber-500"></i> Panel Permainan
-                    </h2>
-                    
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <div class="bg-amber-100 p-3 rounded-2xl border border-amber-300 text-center">
-                            <span class="text-xs text-amber-700 font-bold block">PETAK KAMU</span>
-                            <span id="current-pos" class="text-3xl font-extrabold text-amber-800">1</span>
+                <!-- Status P1 & P2 -->
+                <div class="grid grid-cols-2 gap-3">
+                    <!-- Card P1 -->
+                    <div id="card-p1" class="glass-panel p-3 rounded-2xl border-2 border-red-300 text-center transition-all turn-active">
+                        <div class="flex items-center justify-center gap-1 text-red-600 font-bold text-sm mb-1">
+                            <i class="fa-solid fa-user-ninja"></i> PEMAIN 1
                         </div>
-                        <div class="bg-emerald-100 p-3 rounded-2xl border border-emerald-300 text-center">
-                            <span class="text-xs text-emerald-700 font-bold block">SKOR</span>
-                            <span id="current-score" class="text-3xl font-extrabold text-emerald-800">0</span>
-                        </div>
+                        <div class="text-xs text-slate-500">Petak: <b id="pos-p1" class="text-red-700 text-base">1</b></div>
+                        <div class="text-xs text-slate-500">Skor: <b id="score-p1" class="text-red-700 text-lg">0</b></div>
                     </div>
-
-                    <div class="bg-blue-50 p-3 rounded-2xl border border-blue-200 mb-4 text-center">
-                        <span class="text-xs text-blue-600 font-bold block">SOAL TERJAWAB</span>
-                        <span id="questions-count" class="text-lg font-bold text-blue-800">0 / 50</span>
-                    </div>
-
-                    <div class="flex flex-col items-center justify-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                        <div id="dice" class="w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center text-white text-3xl font-extrabold shadow-md mb-3 border-2 border-amber-200">
-                            <i class="fa-solid fa-dice-one"></i>
+                    <!-- Card P2 -->
+                    <div id="card-p2" class="glass-panel p-3 rounded-2xl border-2 border-blue-300 text-center transition-all opacity-70">
+                        <div class="flex items-center justify-center gap-1 text-blue-600 font-bold text-sm mb-1">
+                            <i class="fa-solid fa-user-astronaut"></i> PEMAIN 2
                         </div>
-                        <button id="roll-btn" onclick="rollDice()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-xl shadow-lg btn-bounce text-lg flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-dice"></i> Lempar Dadu!
-                        </button>
+                        <div class="text-xs text-slate-500">Petak: <b id="pos-p2" class="text-blue-700 text-base">1</b></div>
+                        <div class="text-xs text-slate-500">Skor: <b id="score-p2" class="text-blue-700 text-lg">0</b></div>
                     </div>
                 </div>
 
+                <!-- Panel Dadu & Giliran -->
+                <div class="glass-panel p-5 rounded-3xl shadow-lg border-2 border-amber-300 flex flex-col items-center">
+                    <div id="turn-indicator" class="px-4 py-1.5 rounded-full bg-red-500 text-white font-bold text-xs mb-3 shadow-sm flex items-center gap-1">
+                        <i class="fa-solid fa-play"></i> Giliran Pemain 1
+                    </div>
+
+                    <div id="dice" class="w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center text-white text-3xl font-extrabold shadow-md mb-3 border-2 border-amber-200">
+                        <i class="fa-solid fa-dice-one"></i>
+                    </div>
+
+                    <button id="roll-btn" onclick="rollDice()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-xl shadow-lg btn-bounce text-lg flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-dice"></i> Lempar Dadu!
+                    </button>
+                </div>
+
+                <!-- Petunjuk Mode Duel -->
                 <div class="glass-panel p-4 rounded-3xl shadow-lg border-2 border-emerald-200 text-xs text-slate-700 space-y-2">
                     <h3 class="font-bold text-emerald-800 text-sm flex items-center gap-1">
-                        <i class="fa-solid fa-circle-info"></i> Petunjuk:
+                        <i class="fa-solid fa-bolt text-amber-500"></i> Aturan Mode Duel:
                     </h3>
                     <ul class="list-disc list-inside space-y-1">
-                        <li>Kocok dadu dan melangkah otomatis.</li>
-                        <li>Terdapat **50 soal lengkap** Sejarah Nabi Muhammad SAW.</li>
-                        <li>Jawab **Benar**: Tetap di petak & skor +10.</li>
-                        <li>Jawab **Salah**: Mundur 1 petak!</li>
-                        <li>Naik tangga jika benar di bawah tangga, waspada ular!</li>
+                        <li>Pemain bergantian melemparkan dadu.</li>
+                        <li><b>Jawab Benar</b>: Maju ke petak baru (+10 Skor).</li>
+                        <li><b>Jawab Salah</b>: Mundur 1 petak & giliran berpindah!</li>
+                        <li><b>Fitur Rebut</b>: Jika mendarat di petak lawan, posisi lawan akan terdorong mundur 1 petak!</li>
                     </ul>
                 </div>
 
@@ -170,15 +183,15 @@
         </div>
     </div>
 
-    <!-- Modal Kuis -->
-    <div id="quiz-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <!-- Modal Kuis Duel -->
+    <div id="quiz-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border-4 border-amber-400 transform transition-all scale-95 opacity-0 duration-300" id="modal-card">
             
             <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-                <span id="quiz-badge" class="px-3 py-1 bg-amber-100 text-amber-800 font-bold rounded-full text-xs flex items-center gap-1">
-                    <i class="fa-solid fa-question-circle"></i> Soal Petak <span id="modal-cell-num">0</span>
+                <span id="quiz-badge" class="px-3 py-1 rounded-full text-xs font-bold text-white bg-red-500 flex items-center gap-1">
+                    <i class="fa-solid fa-user text-xs"></i> Giliran Pemain 1
                 </span>
-                <span class="text-xs text-emerald-600 font-bold">PAI SD Kelas 5</span>
+                <span class="text-xs text-slate-400 font-bold">Petak <span id="modal-cell-num">0</span></span>
             </div>
 
             <h3 id="quiz-question" class="text-lg md:text-xl font-bold text-slate-800 mb-6 leading-relaxed">
@@ -190,33 +203,39 @@
             <div id="quiz-feedback" class="hidden p-3 rounded-xl text-center font-bold text-sm mb-4"></div>
 
             <button id="next-btn" onclick="closeModal()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md hidden btn-bounce">
-                Lanjutkan Permainan <i class="fa-solid fa-arrow-right ml-1"></i>
+                Lanjutkan Duel <i class="fa-solid fa-arrow-right ml-1"></i>
             </button>
         </div>
     </div>
 
-    <!-- Modal Menang -->
-    <div id="win-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+    <!-- Modal Pemenang Duel -->
+    <div id="win-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl max-w-md w-full p-8 text-center shadow-2xl border-4 border-amber-400">
-            <div class="w-20 h-20 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-4 border-2 border-amber-300 shadow-inner">
+            <div id="winner-icon-bg" class="w-20 h-20 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-4 border-2 border-amber-300 shadow-inner">
                 <i class="fa-solid fa-trophy"></i>
             </div>
-            <h2 class="text-2xl font-extrabold text-slate-800 mb-2">Alhamdulillah, Luar Biasa!</h2>
-            <p class="text-slate-600 mb-6 text-sm">Kamu telah berhasil menyelesaikan permainan Ular Tangga Sejarah Nabi Muhammad SAW!</p>
+            <h2 id="winner-title" class="text-2xl font-extrabold text-slate-800 mb-1">PEMAIN 1 MENANG!</h2>
+            <p class="text-slate-600 mb-6 text-xs">Selamat atas kemenangan duel pengetahuan Sejarah Nabi Muhammad SAW!</p>
             
-            <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl mb-6">
-                <span class="text-xs text-emerald-600 font-bold block">SKOR AKHIR KAMU</span>
-                <span id="final-score" class="text-4xl font-black text-emerald-700">0</span>
+            <div class="grid grid-cols-2 gap-3 mb-6 text-xs font-bold">
+                <div class="bg-red-50 p-3 rounded-2xl border border-red-200">
+                    <span class="text-red-600 block">SKOR PEMAIN 1</span>
+                    <span id="final-score-p1" class="text-2xl text-red-700">0</span>
+                </div>
+                <div class="bg-blue-50 p-3 rounded-2xl border border-blue-200">
+                    <span class="text-blue-600 block">SKOR PEMAIN 2</span>
+                    <span id="final-score-p2" class="text-2xl text-blue-700">0</span>
+                </div>
             </div>
 
             <button onclick="location.reload()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg btn-bounce">
-                Main Lagi <i class="fa-solid fa-rotate-right ml-1"></i>
+                Main Duel Lagi <i class="fa-solid fa-rotate-right ml-1"></i>
             </button>
         </div>
     </div>
 
     <script>
-        // --- EXACT 50 QUESTIONS (PAI KELAS 5 SD - SEJARAH NABI MUHAMMAD SAW) ---
+        // --- EXACT 50 QUESTIONS DATA ---
         const questionsData = [
             { id: 1, q: "Nabi Muhammad SAW lahir pada tanggal dan bulan apa dalam kalender Hijriah?", a: ["12 Rabiul Awal", "17 Ramadan", "1 Muharram", "10 Zulhijah"], correct: 0 },
             { id: 2, q: "Tahun kelahiran Nabi Muhammad SAW disebut Tahun Gajah karena...", a: ["Pasukan gajah menyerang Ka'bah", "Banyak gajah lahir", "Masyarakat memelihara gajah", "Ada kontes gajah"], correct: 0 },
@@ -270,38 +289,31 @@
             { id: 50, q: "Meneladani akhlak Nabi Muhammad SAW sejak kecil bermanfaat agar kita...", a: ["Dicintai Allah SWT & berakhlak mulia", "Dipuji teman saja", "Menjadi orang paling kaya", "Tidak perlu belajar"], correct: 0 }
         ];
 
-        // --- SNAKES & LADDERS POSITIONS ---
-        const ladders = {
-            4: 16, 12: 33, 22: 43, 29: 50, 41: 62, 54: 75, 63: 81, 72: 91
+        // --- GAME STATE FOR DUEL MODE ---
+        let currentPlayer = 1; // 1 or 2
+        let players = {
+            1: { pos: 1, score: 0, elPos: 'pos-p1', elScore: 'score-p1', card: 'card-p1', color: 'red' },
+            2: { pos: 1, score: 0, elPos: 'pos-p2', elScore: 'score-p2', card: 'card-p2', color: 'blue' }
         };
 
-        const snakes = {
-            27: 7, 36: 15, 48: 26, 61: 39, 78: 57, 88: 67, 95: 74, 97: 86
-        };
+        const ladders = { 4: 16, 12: 33, 22: 43, 29: 50, 41: 62, 54: 75, 63: 81, 72: 91 };
+        const snakes = { 27: 7, 36: 15, 48: 26, 61: 39, 78: 57, 88: 67, 95: 74, 97: 86 };
 
         const cellColors = [
-            'bg-red-200 text-red-900',
-            'bg-amber-200 text-amber-900',
-            'bg-emerald-200 text-emerald-900',
-            'bg-sky-200 text-sky-900',
-            'bg-purple-200 text-purple-900',
-            'bg-pink-200 text-pink-900'
+            'bg-red-200 text-red-900', 'bg-amber-200 text-amber-900',
+            'bg-emerald-200 text-emerald-900', 'bg-sky-200 text-sky-900',
+            'bg-purple-200 text-purple-900', 'bg-pink-200 text-pink-900'
         ];
 
-        let playerPos = 1;
-        let score = 0;
-        let answeredQuestions = new Set();
-        let targetPos = 1;
         let isRolling = false;
 
-        // --- RENDER BOARD & GRAPHICS ---
+        // --- RENDER BOARD ---
         function createBoard() {
             const board = document.getElementById('board');
             board.innerHTML = `
                 <svg id="board-svg"></svg>
-                <div id="player-1" class="player-token absolute flex items-center justify-center w-7 h-7 md:w-9 md:h-9 rounded-full bg-red-500 text-white font-bold text-xs border-2 border-white shadow-lg">
-                    <i class="fa-solid fa-child text-sm"></i>
-                </div>
+                <div id="player-1" class="player-token absolute flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-red-500 text-white font-bold text-xs border-2 border-white shadow-lg">P1</div>
+                <div id="player-2" class="player-token absolute flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-blue-500 text-white font-bold text-xs border-2 border-white shadow-lg">P2</div>
             `;
 
             for (let row = 9; row >= 0; row--) {
@@ -311,8 +323,7 @@
                     const cellNum = row * 10 + actualCol + 1;
                     
                     const cell = document.createElement('div');
-                    const colorClass = cellColors[(cellNum - 1) % cellColors.length];
-                    cell.className = `cell ${colorClass}`;
+                    cell.className = `cell ${cellColors[(cellNum - 1) % cellColors.length]}`;
                     cell.id = `cell-${cellNum}`;
                     cell.innerHTML = `<span>${cellNum}</span>`;
 
@@ -321,7 +332,8 @@
             }
 
             setTimeout(drawRealGraphics, 100);
-            updatePlayerPositionVisual(1);
+            updatePlayerPositionVisual(1, 1);
+            updatePlayerPositionVisual(2, 1);
         }
 
         function getCellCoords(cellNum) {
@@ -333,20 +345,15 @@
             const xIndex = isEvenRow ? (9 - col) : col;
             const yIndex = 9 - row;
 
-            return {
-                x: (xIndex + 0.5) * 10,
-                y: (yIndex + 0.5) * 10
-            };
+            return { x: (xIndex + 0.5) * 10, y: (yIndex + 0.5) * 10 };
         }
 
-        // --- DRAW REAL SNAKES & LADDERS (ASLI) ON SVG ---
         function drawRealGraphics() {
             const svg = document.getElementById('board-svg');
             svg.innerHTML = `
                 <defs>
                     <linearGradient id="ladderGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                         <stop offset="0%" style="stop-color:#d97706;stop-opacity:1" />
-                        <stop offset="50%" style="stop-color:#f59e0b;stop-opacity:1" />
                         <stop offset="100%" style="stop-color:#b45309;stop-opacity:1" />
                     </linearGradient>
                     <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
@@ -355,7 +362,7 @@
                 </defs>
             `;
 
-            // Draw Real Ladders Graphics
+            // Draw Ladders
             for (let start in ladders) {
                 let end = ladders[start];
                 let c1 = getCellCoords(parseInt(start));
@@ -370,52 +377,37 @@
                 let perpX = -dy / len * 2; 
                 let perpY = dx / len * 2;
 
-                // Ladder Side Rails
                 let l1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                l1.setAttribute('x1', `${c1.x - perpX}%`);
-                l1.setAttribute('y1', `${c1.y - perpY}%`);
-                l1.setAttribute('x2', `${c2.x - perpX}%`);
-                l1.setAttribute('y2', `${c2.y - perpY}%`);
-                l1.setAttribute('stroke', 'url(#ladderGrad)');
-                l1.setAttribute('stroke-width', '4');
+                l1.setAttribute('x1', `${c1.x - perpX}%`); l1.setAttribute('y1', `${c1.y - perpY}%`);
+                l1.setAttribute('x2', `${c2.x - perpX}%`); l1.setAttribute('y2', `${c2.y - perpY}%`);
+                l1.setAttribute('stroke', 'url(#ladderGrad)'); l1.setAttribute('stroke-width', '4');
 
                 let l2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                l2.setAttribute('x1', `${c1.x + perpX}%`);
-                l2.setAttribute('y1', `${c1.y + perpY}%`);
-                l2.setAttribute('x2', `${c2.x + perpX}%`);
-                l2.setAttribute('y2', `${c2.y + perpY}%`);
-                l2.setAttribute('stroke', 'url(#ladderGrad)');
-                l2.setAttribute('stroke-width', '4');
+                l2.setAttribute('x1', `${c1.x + perpX}%`); l2.setAttribute('y1', `${c1.y + perpY}%`);
+                l2.setAttribute('x2', `${c2.x + perpX}%`); l2.setAttribute('y2', `${c2.y + perpY}%`);
+                l2.setAttribute('stroke', 'url(#ladderGrad)'); l2.setAttribute('stroke-width', '4');
 
-                g.appendChild(l1);
-                g.appendChild(l2);
+                g.appendChild(l1); g.appendChild(l2);
 
-                // Ladder Rungs (Anak Tangga)
                 let steps = Math.floor(len / 6);
                 for (let i = 1; i < steps; i++) {
-                    let rx1 = c1.x + (dx * (i / steps)) - perpX;
-                    let ry1 = c1.y + (dy * (i / steps)) - perpY;
-                    let rx2 = c1.x + (dx * (i / steps)) + perpX;
-                    let ry2 = c1.y + (dy * (i / steps)) + perpY;
-
                     let rung = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                    rung.setAttribute('x1', `${rx1}%`);
-                    rung.setAttribute('y1', `${ry1}%`);
-                    rung.setAttribute('x2', `${rx2}%`);
-                    rung.setAttribute('y2', `${ry2}%`);
-                    rung.setAttribute('stroke', '#78350f');
-                    rung.setAttribute('stroke-width', '3');
+                    rung.setAttribute('x1', `${c1.x + (dx * (i / steps)) - perpX}%`);
+                    rung.setAttribute('y1', `${c1.y + (dy * (i / steps)) - perpY}%`);
+                    rung.setAttribute('x2', `${c1.x + (dx * (i / steps)) + perpX}%`);
+                    rung.setAttribute('y2', `${c1.y + (dy * (i / steps)) + perpY}%`);
+                    rung.setAttribute('stroke', '#78350f'); rung.setAttribute('stroke-width', '3');
                     g.appendChild(rung);
                 }
 
                 svg.appendChild(g);
             }
 
-            // Draw Real Snakes Graphics
+            // Draw Snakes
             for (let start in snakes) {
                 let end = snakes[start];
-                let c1 = getCellCoords(parseInt(start)); // Snake Head
-                let c2 = getCellCoords(end);           // Snake Tail
+                let c1 = getCellCoords(parseInt(start));
+                let c2 = getCellCoords(end);
 
                 let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 g.setAttribute('filter', 'url(#shadow)');
@@ -425,66 +417,45 @@
                 let midX2 = c1.x + (c2.x - c1.x) * 0.7 - 8;
                 let midY2 = c1.y + (c2.y - c1.y) * 0.7 + 5;
 
-                // Snake Body Path
                 let pathStr = `M ${c1.x} ${c1.y} C ${midX1} ${midY1}, ${midX2} ${midY2}, ${c2.x} ${c2.y}`;
                 
                 let body = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                body.setAttribute('d', pathStr);
-                body.setAttribute('fill', 'none');
-                body.setAttribute('stroke', '#15803d'); // Snake green
-                body.setAttribute('stroke-width', '8');
+                body.setAttribute('d', pathStr); body.setAttribute('fill', 'none');
+                body.setAttribute('stroke', '#15803d'); body.setAttribute('stroke-width', '8');
                 body.setAttribute('stroke-linecap', 'round');
 
-                let bodyPattern = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                bodyPattern.setAttribute('d', pathStr);
-                bodyPattern.setAttribute('fill', 'none');
-                bodyPattern.setAttribute('stroke', '#facc15'); // Yellow spots
-                bodyPattern.setAttribute('stroke-width', '3');
-                bodyPattern.setAttribute('stroke-dasharray', '3,7');
-
-                // Snake Head
                 let head = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                head.setAttribute('cx', `${c1.x}%`);
-                head.setAttribute('cy', `${c1.y}%`);
-                head.setAttribute('r', '7');
-                head.setAttribute('fill', '#166534');
+                head.setAttribute('cx', `${c1.x}%`); head.setAttribute('cy', `${c1.y}%`);
+                head.setAttribute('r', '7'); head.setAttribute('fill', '#166534');
 
-                // Snake Eyes
-                let eye = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                eye.setAttribute('cx', `${c1.x - 1}%`);
-                eye.setAttribute('cy', `${c1.y - 1}%`);
-                eye.setAttribute('r', '1.5');
-                eye.setAttribute('fill', '#ffffff');
-
-                g.appendChild(body);
-                g.appendChild(bodyPattern);
-                g.appendChild(head);
-                g.appendChild(eye);
-
+                g.appendChild(body); g.appendChild(head);
                 svg.appendChild(g);
             }
         }
 
-        function updatePlayerPositionVisual(pos) {
-            const token = document.getElementById('player-1');
+        function updatePlayerPositionVisual(pNum, pos) {
+            const token = document.getElementById(`player-${pNum}`);
             const coords = getCellCoords(pos);
-            token.style.left = `calc(${coords.x}% - 14px)`;
-            token.style.top = `calc(${coords.y}% - 14px)`;
-            document.getElementById('current-pos').innerText = pos;
+            
+            // Offset slight position so tokens don't completely overlap
+            const offsetX = pNum === 1 ? -18 : -6;
+            const offsetY = pNum === 1 ? -18 : -6;
+
+            token.style.left = `calc(${coords.x}% + ${offsetX}px)`;
+            token.style.top = `calc(${coords.y}% + ${offsetY}px)`;
+            document.getElementById(players[pNum].elPos).innerText = pos;
         }
 
-        // --- GAME PLAY MECHANICS ---
+        // --- DUEL MECHANICS ---
         function rollDice() {
             if (isRolling) return;
             isRolling = true;
 
             const diceEl = document.getElementById('dice');
             const btn = document.getElementById('roll-btn');
-            btn.disabled = true;
-            btn.classList.add('opacity-50');
+            btn.disabled = true; btn.classList.add('opacity-50');
 
             diceEl.classList.add('dice-rolling');
-
             const diceIcons = ['fa-dice-one', 'fa-dice-two', 'fa-dice-three', 'fa-dice-four', 'fa-dice-five', 'fa-dice-six'];
 
             let count = 0;
@@ -498,30 +469,27 @@
                     diceEl.innerHTML = `<i class="fa-solid ${diceIcons[diceValue - 1]}"></i>`;
                     diceEl.classList.remove('dice-rolling');
                     
-                    movePlayer(diceValue);
+                    moveCurrentPlayer(diceValue);
                 }
             }, 50);
         }
 
-        function movePlayer(steps) {
-            let nextPos = playerPos + steps;
-            if (nextPos > 100) {
-                nextPos = 100 - (nextPos - 100);
-            }
+        function moveCurrentPlayer(steps) {
+            let p = players[currentPlayer];
+            let nextPos = p.pos + steps;
+            if (nextPos > 100) nextPos = 100 - (nextPos - 100);
 
-            targetPos = nextPos;
-            
-            let currentStep = playerPos;
+            let currentStep = p.pos;
             const stepInterval = setInterval(() => {
-                if (currentStep < targetPos) currentStep++;
-                else if (currentStep > targetPos) currentStep--;
+                if (currentStep < nextPos) currentStep++;
+                else if (currentStep > nextPos) currentStep--;
 
-                updatePlayerPositionVisual(currentStep);
+                updatePlayerPositionVisual(currentPlayer, currentStep);
 
-                if (currentStep === targetPos) {
+                if (currentStep === nextPos) {
                     clearInterval(stepInterval);
-                    playerPos = targetPos;
-                    triggerQuiz(playerPos);
+                    p.pos = nextPos;
+                    triggerQuiz(p.pos);
                 }
             }, 200);
         }
@@ -529,6 +497,10 @@
         function triggerQuiz(cellNum) {
             let qIndex = (cellNum - 1) % questionsData.length;
             let qData = questionsData[qIndex];
+
+            const badge = document.getElementById('quiz-badge');
+            badge.className = `px-3 py-1 rounded-full text-xs font-bold text-white bg-${players[currentPlayer].color}-500 flex items-center gap-1`;
+            badge.innerHTML = `<i class="fa-solid fa-user text-xs"></i> Kuis Giliran Pemain ${currentPlayer}`;
 
             document.getElementById('modal-cell-num').innerText = cellNum;
             document.getElementById('quiz-question').innerText = qData.q;
@@ -567,6 +539,10 @@
                 btn.classList.remove('btn-bounce', 'hover:border-amber-400', 'hover:bg-amber-50');
             }
 
+            let p = players[currentPlayer];
+            let otherPlayerNum = currentPlayer === 1 ? 2 : 1;
+            let otherP = players[otherPlayerNum];
+
             if (selectedIdx === correctIdx) {
                 clickedBtn.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-800');
                 clickedBtn.querySelector('i').className = 'fa-solid fa-circle-check text-emerald-600';
@@ -574,34 +550,39 @@
                 feedback.classList.remove('hidden');
                 feedback.classList.add('bg-emerald-100', 'text-emerald-800');
                 
-                score += 10;
-                answeredQuestions.add(cellNum);
-                document.getElementById('current-score').innerText = score;
-                document.getElementById('questions-count').innerText = `${answeredQuestions.size} / 50`;
+                p.score += 10;
+                document.getElementById(p.elScore).innerText = p.score;
 
-                if (ladders[cellNum]) {
-                    feedback.innerHTML = `<i class="fa-solid fa-circle-check"></i> Jawaban Benar! (+10 Skor)<br><span class="text-xs text-emerald-700">Hebat! Kamu menemukan TANGGA dan NAIK ke petak ${ladders[cellNum]}!</span>`;
-                    playerPos = ladders[cellNum];
-                } else if (snakes[cellNum]) {
-                    feedback.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Jawaban Benar! Tapi ada ULAR di sini, kamu TURUN ke petak ${snakes[cellNum]}!`;
-                    playerPos = snakes[cellNum];
-                } else {
-                    feedback.innerHTML = `<i class="fa-solid fa-circle-check"></i> Jawaban Benar! (+10 Skor) Kamu bertahan di petak ini.`;
+                // Feature: Knock opponent back if landing on same cell!
+                let knockText = "";
+                if (p.pos === otherP.pos && p.pos > 1) {
+                    otherP.pos = Math.max(1, otherP.pos - 1);
+                    updatePlayerPositionVisual(otherPlayerNum, otherP.pos);
+                    knockText = `<br><span class="text-xs text-red-600 font-extrabold">⚔️ FITUR DUEL: Pemain ${otherPlayerNum} terdorong mundur 1 petak!</span>`;
                 }
 
-                confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+                if (ladders[cellNum]) {
+                    feedback.innerHTML = `<i class="fa-solid fa-circle-check"></i> Jawaban Benar! (+10 Skor)<br><span class="text-xs text-emerald-700">Naik TANGGA ke petak ${ladders[cellNum]}!</span>` + knockText;
+                    p.pos = ladders[cellNum];
+                } else if (snakes[cellNum]) {
+                    feedback.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Jawaban Benar! Tapi ada ULAR, turun ke petak ${snakes[cellNum]}!`;
+                    p.pos = snakes[cellNum];
+                } else {
+                    feedback.innerHTML = `<i class="fa-solid fa-circle-check"></i> Jawaban Benar! (+10 Skor)` + knockText;
+                }
+
+                confetti({ particleCount: 40, spread: 50, origin: { y: 0.7 } });
 
             } else {
                 clickedBtn.classList.add('bg-red-100', 'border-red-500', 'text-red-800');
                 clickedBtn.querySelector('i').className = 'fa-solid fa-circle-xmark text-red-600';
-                
                 options[correctIdx].classList.add('bg-emerald-50', 'border-emerald-400');
 
                 feedback.classList.remove('hidden');
                 feedback.classList.add('bg-red-100', 'text-red-800');
-                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Jawaban Kurang Tepat!<br><span class="text-xs">Kamu terlempar mundur 1 petak ke belakang!</span>`;
+                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Jawaban Salah!<br><span class="text-xs">Kamu terlempar mundur 1 petak!</span>`;
                 
-                playerPos = Math.max(1, playerPos - 1);
+                p.pos = Math.max(1, p.pos - 1);
             }
 
             nextBtn.classList.remove('hidden');
@@ -616,23 +597,52 @@
 
             setTimeout(() => {
                 modal.classList.add('hidden');
-                updatePlayerPositionVisual(playerPos);
+                updatePlayerPositionVisual(currentPlayer, players[currentPlayer].pos);
+
+                // Check Win
+                if (players[currentPlayer].pos >= 100) {
+                    showWinModal();
+                    return;
+                }
+
+                // Switch Turn
+                switchTurn();
 
                 const btn = document.getElementById('roll-btn');
-                btn.disabled = false;
-                btn.classList.remove('opacity-50');
+                btn.disabled = false; btn.classList.remove('opacity-50');
                 isRolling = false;
-
-                if (playerPos >= 100) {
-                    showWinModal();
-                }
             }, 200);
         }
 
+        function switchTurn() {
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            const turnInd = document.getElementById('turn-indicator');
+            const cardP1 = document.getElementById('card-p1');
+            const cardP2 = document.getElementById('card-p2');
+
+            if (currentPlayer === 1) {
+                turnInd.className = "px-4 py-1.5 rounded-full bg-red-500 text-white font-bold text-xs mb-3 shadow-sm flex items-center gap-1";
+                turnInd.innerHTML = `<i class="fa-solid fa-play"></i> Giliran Pemain 1`;
+                cardP1.classList.add('turn-active', 'opacity-100');
+                cardP2.classList.remove('turn-active'); cardP2.classList.add('opacity-70');
+            } else {
+                turnInd.className = "px-4 py-1.5 rounded-full bg-blue-500 text-white font-bold text-xs mb-3 shadow-sm flex items-center gap-1";
+                turnInd.innerHTML = `<i class="fa-solid fa-play"></i> Giliran Pemain 2`;
+                cardP2.classList.add('turn-active', 'opacity-100');
+                cardP1.classList.remove('turn-active'); cardP1.classList.add('opacity-70');
+            }
+        }
+
         function showWinModal() {
-            document.getElementById('final-score').innerText = score;
+            document.getElementById('final-score-p1').innerText = players[1].score;
+            document.getElementById('final-score-p2').innerText = players[2].score;
+            
+            const winTitle = document.getElementById('winner-title');
+            winTitle.innerText = `PEMAIN ${currentPlayer} MENANG! 🎉`;
+            winTitle.className = `text-2xl font-extrabold text-${players[currentPlayer].color}-600 mb-1`;
+
             document.getElementById('win-modal').classList.remove('hidden');
-            confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
+            confetti({ particleCount: 180, spread: 100, origin: { y: 0.6 } });
         }
 
         window.addEventListener('resize', drawRealGraphics);
