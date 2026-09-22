@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gim Ular Tangga PAI: Sejarah Nabi Muhammad SAW</title>
+    <title>Ular Tangga PAI SD Kelas 5: Sejarah Nabi Muhammad SAW</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -16,28 +16,36 @@
             min-height: 100vh;
         }
 
+        .board-container {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            aspect-ratio: 1;
+        }
+
         .board-grid {
             display: grid;
             grid-template-columns: repeat(10, 1fr);
             grid-template-rows: repeat(10, 1fr);
-            aspect-ratio: 1;
+            width: 100%;
+            height: 100%;
             position: relative;
         }
 
         .cell {
-            font-size: 0.75rem;
-            font-weight: bold;
+            font-size: 0.8rem;
+            font-weight: 700;
             display: flex;
             align-items: flex-start;
             justify-content: flex-start;
-            padding: 2px 4px;
+            padding: 3px 5px;
             position: relative;
             border: 1px solid rgba(255,255,255,0.4);
-            border-radius: 4px;
-            box-shadow: inset 0 0 4px rgba(0,0,0,0.05);
+            border-radius: 6px;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.06);
         }
 
-        /* SVG Overlay for Snakes and Ladders */
+        /* SVG layer for Real Snakes & Ladders Graphics */
         #board-svg {
             position: absolute;
             top: 0;
@@ -49,12 +57,11 @@
         }
 
         .player-token {
-            transition: all 0.4s ease-in-out;
-            z-index: 20;
-            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 25;
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4));
         }
 
-        /* Dice Animation */
         .dice-rolling {
             animation: roll 0.5s infinite linear;
         }
@@ -66,16 +73,16 @@
         }
 
         .glass-panel {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.6);
         }
 
         .btn-bounce {
             transition: transform 0.1s ease;
         }
         .btn-bounce:active {
-            transform: scale(0.92);
+            transform: scale(0.93);
         }
     </style>
 </head>
@@ -88,45 +95,44 @@
                 <i class="fa-solid fa-mosque text-amber-500"></i> Ular Tangga PAI <i class="fa-solid fa-star text-amber-400"></i>
             </h1>
             <p class="text-base md:text-lg text-emerald-900 font-semibold mt-1">
-                Kisah Teladan Sejarah Nabi Muhammad SAW - Kelas 5 SD
+                Kisah Teladan Sejarah Nabi Muhammad SAW - SD Kelas 5
             </p>
         </header>
 
-        <!-- Main Content Layout -->
+        <!-- Main Content -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
-            <!-- Board Column (8 cols) -->
+            <!-- Papan Permainan (8 cols) -->
             <div class="lg:col-span-8 flex flex-col items-center">
-                <div class="w-full max-w-[650px] bg-white p-3 md:p-4 rounded-3xl shadow-2xl relative border-4 border-amber-300">
+                <div class="board-container bg-white p-3 md:p-4 rounded-3xl shadow-2xl relative border-4 border-amber-300">
                     
-                    <!-- Board Canvas / Grid -->
                     <div id="board" class="board-grid rounded-2xl overflow-hidden shadow-inner">
                         <svg id="board-svg"></svg>
-                        <!-- Tokens -->
-                        <div id="player-1" class="player-token absolute flex items-center justify-center w-6 h-6 md:w-8 md:h-8 rounded-full bg-red-500 text-white font-bold text-xs border-2 border-white shadow-lg">
-                            <i class="fa-solid fa-child"></i>
+
+                        <!-- Gambar Grafis Dekorasi Ular & Tangga Asli (PNG/SVG Rendering via Canvas/SVG) -->
+                        <div id="player-1" class="player-token absolute flex items-center justify-center w-7 h-7 md:w-9 md:h-9 rounded-full bg-red-500 text-white font-bold text-xs border-2 border-white shadow-lg">
+                            <i class="fa-solid fa-child text-sm"></i>
                         </div>
                     </div>
 
                 </div>
             </div>
 
-            <!-- Control & Stats Column (4 cols) -->
+            <!-- Kontrol & Skor (4 cols) -->
             <div class="lg:col-span-4 flex flex-col gap-4">
                 
-                <!-- Status Panel -->
                 <div class="glass-panel p-5 rounded-3xl shadow-lg border-2 border-emerald-300">
                     <h2 class="text-xl font-bold text-emerald-800 mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-gamepad text-amber-500"></i> Status Permainan
+                        <i class="fa-solid fa-gamepad text-amber-500"></i> Panel Permainan
                     </h2>
                     
                     <div class="grid grid-cols-2 gap-3 mb-4">
                         <div class="bg-amber-100 p-3 rounded-2xl border border-amber-300 text-center">
-                            <span class="text-xs text-amber-700 font-bold block">POSISI SAAT INI</span>
+                            <span class="text-xs text-amber-700 font-bold block">PETAK KAMU</span>
                             <span id="current-pos" class="text-3xl font-extrabold text-amber-800">1</span>
                         </div>
                         <div class="bg-emerald-100 p-3 rounded-2xl border border-emerald-300 text-center">
-                            <span class="text-xs text-emerald-700 font-bold block">SKOR KAMU</span>
+                            <span class="text-xs text-emerald-700 font-bold block">SKOR</span>
                             <span id="current-score" class="text-3xl font-extrabold text-emerald-800">0</span>
                         </div>
                     </div>
@@ -136,7 +142,6 @@
                         <span id="questions-count" class="text-lg font-bold text-blue-800">0 / 50</span>
                     </div>
 
-                    <!-- Dice Roll Section -->
                     <div class="flex flex-col items-center justify-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                         <div id="dice" class="w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center text-white text-3xl font-extrabold shadow-md mb-3 border-2 border-amber-200">
                             <i class="fa-solid fa-dice-one"></i>
@@ -147,17 +152,16 @@
                     </div>
                 </div>
 
-                <!-- Petunjuk/Legenda -->
                 <div class="glass-panel p-4 rounded-3xl shadow-lg border-2 border-emerald-200 text-xs text-slate-700 space-y-2">
                     <h3 class="font-bold text-emerald-800 text-sm flex items-center gap-1">
-                        <i class="fa-solid fa-circle-info"></i> Cara Bermain:
+                        <i class="fa-solid fa-circle-info"></i> Petunjuk:
                     </h3>
                     <ul class="list-disc list-inside space-y-1">
-                        <li>Klik <b>"Lempar Dadu!"</b> untuk melangkah.</li>
-                        <li>Setiap petak memiliki kuis Sejarah Nabi Muhammad.</li>
-                        <li>Jawab **Benar** untuk tetap berada di petak baru & mendapat +10 Poin.</li>
-                        <li>Jika **Salah**, kamu harus kembali ke posisi semula!</li>
-                        <li>Naik tangga jika jawab benar di petak tangga, awas gigitan ular!</li>
+                        <li>Kocok dadu dan melangkah otomatis.</li>
+                        <li>Terdapat **50 soal lengkap** Sejarah Nabi Muhammad SAW.</li>
+                        <li>Jawab **Benar**: Tetap di petak & skor +10.</li>
+                        <li>Jawab **Salah**: Mundur 1 petak!</li>
+                        <li>Naik tangga jika benar di bawah tangga, waspada ular!</li>
                     </ul>
                 </div>
 
@@ -166,7 +170,7 @@
         </div>
     </div>
 
-    <!-- Question Modal -->
+    <!-- Modal Kuis -->
     <div id="quiz-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border-4 border-amber-400 transform transition-all scale-95 opacity-0 duration-300" id="modal-card">
             
@@ -174,16 +178,14 @@
                 <span id="quiz-badge" class="px-3 py-1 bg-amber-100 text-amber-800 font-bold rounded-full text-xs flex items-center gap-1">
                     <i class="fa-solid fa-question-circle"></i> Soal Petak <span id="modal-cell-num">0</span>
                 </span>
-                <span class="text-xs text-slate-400 font-semibold">Tingkat SD Kelas 5</span>
+                <span class="text-xs text-emerald-600 font-bold">PAI SD Kelas 5</span>
             </div>
 
             <h3 id="quiz-question" class="text-lg md:text-xl font-bold text-slate-800 mb-6 leading-relaxed">
-                Pertanyaan kuis akan muncul di sini?
+                Pertanyaan kuis akan muncul di sini...
             </h3>
 
-            <div id="quiz-options" class="space-y-3 mb-6">
-                <!-- Dynamic options -->
-            </div>
+            <div id="quiz-options" class="space-y-3 mb-6"></div>
 
             <div id="quiz-feedback" class="hidden p-3 rounded-xl text-center font-bold text-sm mb-4"></div>
 
@@ -193,18 +195,18 @@
         </div>
     </div>
 
-    <!-- Win Modal -->
+    <!-- Modal Menang -->
     <div id="win-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl max-w-md w-full p-8 text-center shadow-2xl border-4 border-amber-400">
             <div class="w-20 h-20 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-4 border-2 border-amber-300 shadow-inner">
                 <i class="fa-solid fa-trophy"></i>
             </div>
-            <h2 class="text-2xl font-extrabold text-slate-800 mb-2">Alhamdulillah, Selamat!</h2>
-            <p class="text-slate-600 mb-6 text-sm">Kamu telah menyelesaikan perjalanan Sejarah Nabi Muhammad SAW dengan sangat baik!</p>
+            <h2 class="text-2xl font-extrabold text-slate-800 mb-2">Alhamdulillah, Luar Biasa!</h2>
+            <p class="text-slate-600 mb-6 text-sm">Kamu telah berhasil menyelesaikan permainan Ular Tangga Sejarah Nabi Muhammad SAW!</p>
             
             <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl mb-6">
                 <span class="text-xs text-emerald-600 font-bold block">SKOR AKHIR KAMU</span>
-                <span id="final-score" class="text-4xl font-black text-emerald-700">100</span>
+                <span id="final-score" class="text-4xl font-black text-emerald-700">0</span>
             </div>
 
             <button onclick="location.reload()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg btn-bounce">
@@ -214,61 +216,61 @@
     </div>
 
     <script>
-        // --- 50 SOAL SEJARAH NABI MUHAMMAD SAW ---
+        // --- EXACT 50 QUESTIONS (PAI KELAS 5 SD - SEJARAH NABI MUHAMMAD SAW) ---
         const questionsData = [
             { id: 1, q: "Nabi Muhammad SAW lahir pada tanggal dan bulan apa dalam kalender Hijriah?", a: ["12 Rabiul Awal", "17 Ramadan", "1 Muharram", "10 Zulhijah"], correct: 0 },
-            { id: 2, q: "Tahun kelahiran Nabi Muhammad SAW dikenal dengan sebutan Tahun...", a: ["Gajah", "Unta", "Banjir", "Kuda"], correct: 0 },
-            { id: 3, q: "Siapa nama Ayah kandung Nabi Muhammad SAW?", a: ["Abdullah", "Abu Thalib", "Abdul Muthalib", "Hamzah"], correct: 0 },
-            { id: 4, q: "Siapa nama Ibu kandung Nabi Muhammad SAW?", a: ["Aaminah", "Khadijah", "Halimah", "Fatimah"], correct: 0 },
-            { id: 5, q: "Siapa nama Kakek yang sangat menyayangi dan mengasuh Nabi Muhammad SAW?", a: ["Abdul Muthalib", "Abu Lahab", "Abbas", "Abu Thalib"], correct: 0 },
-            { id: 6, q: "Siapa Paman Nabi Muhammad SAW yang mengasuhnya setelah sang Kakek wafat?", a: ["Abu Thalib", "Abu Jahal", "Hamzah", "Abbas"], correct: 0 },
-            { id: 7, q: "Nabi Muhammad SAW telah menjadi yatim sejak dalam kandungan karena ayahnya wafat ketika Nabi berusia...", a: ["Masih dalam kandungan 2 bulan", "Saat lahir", "Usia 1 tahun", "Usia 2 tahun"], correct: 0 },
-            { id: 8, q: "Ibu kandung Nabi Muhammad SAW (Aaminah) wafat ketika Nabi berusia...", a: ["6 tahun", "4 tahun", "8 tahun", "10 tahun"], correct: 0 },
-            { id: 9, q: "Kakek Nabi Muhammad SAW (Abdul Muthalib) wafat ketika Nabi berusia...", a: ["8 tahun", "6 tahun", "10 tahun", "12 tahun"], correct: 0 },
-            { id: 10, q: "Di kota manakah Ibu kandung Nabi Muhammad SAW dimakamkan (saat perjalanan pulang dari Yatsrib)?", a: ["Abwa", "Makkah", "Madinah", "Thaif"], correct: 0 },
-            { id: 11, q: "Siapa raja dari Yaman yang memimpin pasukan gajah untuk merobohkan Ka'bah saat Nabi lahir?", a: ["Abrahah", "Namrud", "Fir'aun", "Heraklius"], correct: 0 },
-            { id: 12, q: "Burung apa yang diutus Allah SWT untuk menghancurkan pasukan gajah Raja Abrahah?", a: ["Ababil", "Hud-hud", "Garuda", "Elang"], correct: 0 },
-            { id: 13, q: "Surah dalam Al-Qur'an yang menceritakan peristiwa pencerobohan pasukan gajah adalah surah...", a: ["Al-Fil", "Al-Quraysh", "Al-Kafirun", "Al-Ikhlas"], correct: 0 },
-            { id: 14, q: "Siapa ibu persusuan pertama Nabi Muhammad SAW setelah ibunya (sebelum Halimah)?", a: ["Tsuwaibah", "Halimah", "Ummu Aiman", "Khadijah"], correct: 0 },
-            { id: 15, q: "Ibu persusuan Nabi Muhammad SAW yang merawat beliau di perkampungan Badiyah adalah...", a: ["Halimah as-Sa'diyyah", "Tsuwaibah", "Ummu Aiman", "Fatimah binti Asad"], correct: 0 },
-            { id: 16, q: "Keberkahan apa yang dialami Halimah as-Sa'diyyah setelah mengasuh Nabi Muhammad?", a: ["Ternaknya tumbuh gemuk & susu melimpah", "Menjadi raja Makkah", "Menemukan harta karun", "Rumahnya menjadi emas"], correct: 0 },
-            { id: 17, q: "Suku dari Halimah as-Sa'diyyah adalah suku...", a: ["Bani Sa'ad", "Bani Hasyim", "Bani Umayyah", "Bani Quraisy"], correct: 0 },
-            { id: 18, q: "Peristiwa pembelahan dada Nabi Muhammad SAW oleh Malaikat Jibril terjadi saat beliau diasuh oleh...", a: ["Halimah as-Sa'diyyah", "Aaminah", "Abu Thalib", "Abdul Muthalib"], correct: 0 },
-            { id: 19, q: "Apa tujuan Malaikat Jibril membelah dada Nabi Muhammad SAW saat kecil?", a: ["Membersihkan hati dari keburukan", "Menyembuhkan penyakit", "Memberikan kekuatan fisik", "Mengisinya dengan makanan"], correct: 0 },
-            { id: 20, q: "Wanita yang menjadi pengasuh/pelayan setia Nabi Muhammad sejak kecil hingga dewasa adalah...", a: ["Ummu Aiman", "Halimah", "Tsuwaibah", "Saudah"], correct: 0 },
-            { id: 21, q: "Pekerjaan apa yang dilakukan Nabi Muhammad SAW pada masa kanak-kanak & remajanya?", a: ["Menggembala kambing", "Bertani padi", "Making kerajinan besi", "Nelayan"], correct: 0 },
-            { id: 22, q: "Hikmah dari pekerjaan menggembala kambing bagi calon Nabi adalah melatih...", a: ["Kesabaran dan kepemimpinan", "Kekuatan otot", "Kepintaran berhitung", "Kecepatan berlari"], correct: 0 },
-            { id: 23, q: "Pada usia berapa tahun Nabi Muhammad SAW pertama kali diajak berdagang ke Syam oleh paman beliau?", a: ["12 tahun", "10 tahun", "15 tahun", "20 tahun"], correct: 0 },
-            { id: 24, q: "Siapa pendeta Nasrani yang melihat tanda-tanda kenabian pada Nabi Muhammad saat perjalanan ke Syam?", a: ["Buhaira", "Waraqah", "Musailamah", "Heraklius"], correct: 0 },
-            { id: 25, q: "Awan selalu menaungi Nabi Muhammad SAW selama perjalanan berdagang. Tanda ini dilihat oleh pendeta...", a: ["Buhaira", "Waraqah bin Naufal", "Ats-Tsauri", "Ka'ab"], correct: 0 },
-            { id: 26, q: "Sifat jujur Nabi Muhammad SAW dalam berdagang membuat seorang wanita kaya tertarik, yaitu...", a: ["Khadijah binti Khuwailid", "Aisyah", "Hafshah", "Ummu Salamah"], correct: 0 },
-            { id: 27, q: "Siapa nama pembantu Khadijah yang mendampingi Nabi Muhammad SAW saat berdagang ke Syam?", a: ["Maysarah", "Zaid", "Bilal", "Anas"], correct: 0 },
-            { id: 28, q: "Gelar Al-Amin yang diberikan oleh masyarakat Quraisy kepada Nabi Muhammad SAW memiliki arti...", a: ["Dapat dipercaya", "Orang yang cerdas", "Pemimpin yang kuat", "Penyayang"], correct: 0 },
-            { id: 29, q: "Mengapa masyarakat Makkah memberikan gelar Al-Amin kepada Nabi Muhammad SAW?", a: ["Karena kejujuran dan sifat terpercayanya", "Karena beliau sangat kaya", "Karena keturunan bangsawan", "Karena beliau pandai berperang"], correct: 0 },
-            { id: 30, q: "Nabi Muhammad SAW menikah dengan Siti Khadijah ketika Nabi berusia...", a: ["25 tahun", "20 tahun", "30 tahun", "40 tahun"], correct: 0 },
-            { id: 31, q: "Berapa usia Siti Khadijah ketika menikah dengan Nabi Muhammad SAW?", a: ["40 tahun", "25 tahun", "30 tahun", "35 tahun"], correct: 0 },
-            { id: 32, q: "Peristiwa peletakan kembali batu Hajar Aswad yang diperselisihkan pemuka Quraisy diselesaikan secara adil oleh Nabi pada usia...", a: ["35 tahun", "25 tahun", "30 tahun", "40 tahun"], correct: 0 },
-            { id: 33, q: "Batu hitam yang terletak di sudut Ka'bah dinamakan...", a: ["Hajar Aswad", "Maqam Ibrahim", "Hijir Ismail", "Rukn Yamani"], correct: 0 },
-            { id: 34, q: "Bagaimana cara cerdas Nabi Muhammad menyelesaikan perselisihan pemuka Quraisy saat meletakkan Hajar Aswad?", a: ["Lempengan kain digunakan bersama-sama", "Meletakkannya sendiri secara paksa", "Undian melempar dadu", "Membeli batu baru"], correct: 0 },
-            { id: 35, q: "Perang yang pernah diikuti Nabi Muhammad SAW pada masa remaja adalah Perang...", a: ["Fijar", "Badar", "Uhud", "Khandaq"], correct: 0 },
-            { id: 36, q: "Perang Fijar dinamakan demikian karena terjadi pada...", a: ["Bulan-bulan suci/haram", "Malam hari", "Musim dingin", "Sebab perebutan air"], correct: 0 },
-            { id: 37, q: "Tugas Nabi Muhammad SAW muda dalam Perang Fijar adalah...", a: ["Sedia anak panah untuk paman-pamannya", "Menjadi panglima utama", "Mengobati prajurit", "Membuat benteng"], correct: 0 },
-            { id: 38, q: "Kakek Nabi Muhammad, Abdul Muthalib, berasal dari suku bangsa...", a: ["Quraisy", "Tamim", "Khozraj", "Aus"], correct: 0 },
-            { id: 39, q: "Sebutkan salah satu sifat wajib bagi Nabi Muhammad SAW yang berarti Jujur!", a: ["Siddiq", "Amanah", "Tabligh", "Fathanah"], correct: 0 },
-            { id: 40, q: "Sifat wajib Nabi Muhammad SAW yaitu 'Amanah' memiliki arti...", a: ["Dapat dipercaya", "Jujur", "Menyampaikan", "Cerdas"], correct: 0 },
-            { id: 41, q: "Sifat wajib Nabi Muhammad SAW yaitu 'Fathanah' memiliki arti...", a: ["Cerdas / Bijaksana", "Menyampaikan", "Jujur", "Setia"], correct: 0 },
-            { id: 42, q: "Sifat wajib Nabi Muhammad SAW yaitu 'Tabligh' memiliki arti...", a: ["Menyampaikan wahyu", "Cerdas", "Dapat dipercaya", "Jujur"], correct: 0 },
-            { id: 43, q: "Ayah Nabi Muhammad SAW (Abdullah) wafat di kota...", a: ["Yatsrib (Madina)", "Makkah", "Syam", "Thaif"], correct: 0 },
-            { id: 44, q: "Perjanjian persaudaraan dan pembelaan orang tertindas di Makkah yang diikuti Nabi muda disebut...", a: ["Hilf al-Fudhul", "Piagam Madina", "Perjanjian Hudaibiyah", "Sumpah Pemuda"], correct: 0 },
-            { id: 45, q: "Salah satu contoh sifat kejujuran Nabi Muhammad saat berdagang adalah...", a: ["Menjelaskan kelebihan & kekurangan barang", "Mengurangi timbangan", "Menjual mahal barang jelek", "Berbohong modal barang"], correct: 0 },
-            { id: 46, q: "Gelar Nabi Muhammad SAW sebagai 'Rahmatan lil 'Aalamin' artinya...", a: ["Rahmat bagi semesta alam", "Pemimpin Arab", "Pedagang kaya", "Anak yang terpercaya"], correct: 0 },
-            { id: 47, q: "Nabi Muhammad SAW lahir dari keturunan nabi terdahulu, yaitu Nabi...", a: ["Ibrahim AS & Ismail AS", "Musa AS", "Isa AS", "Yunus AS"], correct: 0 },
-            { id: 48, q: "Ketika Nabi Muhammad lahir, padamlah api sembahan kaum Majusi di negara...", a: ["Persia", "Romawi", "Mesir", "Yaman"], correct: 0 },
-            { id: 49, q: "Siapa nama paman Nabi Muhammad SAW yang selalu memusuhi dan menolak dakwah Islam?", a: ["Abu Lahab", "Abu Thalib", "Hamzah", "Abbas"], correct: 0 },
-            { id: 50, q: "Mengapa kita harus meneladani sifat-sifat Nabi Muhammad SAW sejak kecil?", a: ["Agar dicintai Allah & memiliki akhlak terpuji", "Agar dipuji teman saja", "Agar menjadi kaya raya", "Agar tidak perlu belajar"], correct: 0 }
+            { id: 2, q: "Tahun kelahiran Nabi Muhammad SAW disebut Tahun Gajah karena...", a: ["Pasukan gajah menyerang Ka'bah", "Banyak gajah lahir", "Masyarakat memelihara gajah", "Ada kontes gajah"], correct: 0 },
+            { id: 3, q: "Siapa nama ayah kandung Nabi Muhammad SAW?", a: ["Abdullah", "Abu Thalib", "Abdul Muthalib", "Hamzah"], correct: 0 },
+            { id: 4, q: "Siapa nama ibu kandung Nabi Muhammad SAW?", a: ["Aaminah", "Khadijah", "Halimah", "Fatimah"], correct: 0 },
+            { id: 5, q: "Siapa nama kakek Nabi Muhammad SAW yang mengasuhnya dengan sangat penuh kasih sayang?", a: ["Abdul Muthalib", "Abu Lahab", "Abbas", "Abu Thalib"], correct: 0 },
+            { id: 6, q: "Siapa nama paman Nabi Muhammad SAW yang mengasuhnya setelah kakeknya meninggal dunia?", a: ["Abu Thalib", "Abu Jahal", "Hamzah", "Abbas"], correct: 0 },
+            { id: 7, q: "Nabi Muhammad SAW telah menjadi anak yatim sejak dalam kandungan karena ayahnya wafat ketika Nabi...", a: ["Masih dalam kandungan (2 bulan)", "Baru saja lahir", "Usia 1 tahun", "Usia 2 tahun"], correct: 0 },
+            { id: 8, q: "Ibu kandung Nabi Muhammad SAW (Aaminah) wafat saat Nabi berusia...", a: ["6 tahun", "4 tahun", "8 tahun", "10 tahun"], correct: 0 },
+            { id: 9, q: "Kakek Nabi Muhammad SAW (Abdul Muthalib) wafat saat Nabi berusia...", a: ["8 tahun", "6 tahun", "10 tahun", "12 tahun"], correct: 0 },
+            { id: 10, q: "Di manakah tempat wafatnya ibu Aaminah saat dalam perjalanan kembali dari Yatsrib?", a: ["Abwa", "Makkah", "Madinah", "Thaif"], correct: 0 },
+            { id: 11, q: "Raja dari Yaman yang memimpin pasukan gajah untuk menghancurkan Ka'bah bernama...", a: ["Abrahah", "Namrud", "Fir'aun", "Heraklius"], correct: 0 },
+            { id: 12, q: "Burung yang diutus oleh Allah SWT untuk melempari pasukan gajah dengan batu beracun adalah burung...", a: ["Ababil", "Hud-hud", "Garuda", "Merpati"], correct: 0 },
+            { id: 13, q: "Kisah hancurnya pasukan gajah diabadikan oleh Allah SWT dalam Al-Qur'an surah...", a: ["Al-Fil", "Al-Quraysh", "Al-Kafirun", "Al-Ikhlas"], correct: 0 },
+            { id: 14, q: "Siapa nama ibu persusuan pertama Nabi Muhammad SAW secara singkat setelah ibunya?", a: ["Tsuwaibah Al-Aslamiyah", "Halimah As-Sa'diyyah", "Ummu Aiman", "Fatimah"], correct: 0 },
+            { id: 15, q: "Siapa nama ibu persusuan yang merawat Nabi Muhammad SAW sampai usia 4 tahun di perkampungan desa?", a: ["Halimah As-Sa'diyyah", "Tsuwaibah", "Ummu Aiman", "Khadijah"], correct: 0 },
+            { id: 16, q: "Keberkahan luar biasa yang didapat Halimah ketika mengasuh Nabi Muhammad SAW adalah...", a: ["Hewan ternaknya gemuk & susunya melimpah", "Menjadi penguasa Makkah", "Menemukan emas di rumah", "Pohon berbuah emas"], correct: 0 },
+            { id: 17, q: "Halimah As-Sa'diyyah berasal dari suku perkampungan...", a: ["Bani Sa'ad", "Bani Hasyim", "Bani Umayyah", "Bani Quraisy"], correct: 0 },
+            { id: 18, q: "Peristiwa pembelahan dada Nabi Muhammad SAW oleh Malaikat Jibril terjadi sewaktu Nabi tinggal bersama...", a: ["Halimah As-Sa'diyyah", "Aaminah", "Abu Thalib", "Abdul Muthalib"], correct: 0 },
+            { id: 19, q: "Tujuan Malaikat Jibril membelah dada Nabi Muhammad SAW di masa kecil adalah...", a: ["Membersihkan hatinya dari kotoran syetan", "Menyembuhkan penyakit", "Memberikan kekuatan fisik", "Mengisi perut"], correct: 0 },
+            { id: 20, q: "Siapa nama wanita pelayan setia keluarga yang mengasuh Nabi Muhammad sejak kecil hingga dewasa?", a: ["Ummu Aiman", "Halimah", "Tsuwaibah", "Saudah"], correct: 0 },
+            { id: 21, q: "Pekerjaan utama yang dilakukan Nabi Muhammad SAW pada masa kanak-kanak & remajanya adalah...", a: ["Menggembala kambing", "Bertani jagung", "Membuat kerajinan", "Menjadi nelayan"], correct: 0 },
+            { id: 22, q: "Hikmah utama dari menggembala kambing bagi calon Rasul adalah melatih...", a: ["Kesabaran, kasih sayang, & kepemimpinan", "Kekuatan otot", "Kepintaran menghitung", "Kecepatan berlari"], correct: 0 },
+            { id: 23, q: "Pada usia berapa tahun Nabi Muhammad SAW pertama kali diajak berdagang ke Syam oleh pamannya?", a: ["12 tahun", "10 tahun", "15 tahun", "20 tahun"], correct: 0 },
+            { id: 24, q: "Pendeta Nasrani yang mengenali tanda-tanda kenabian pada diri Nabi Muhammad muda di Syam bernama...", a: ["Buhaira", "Waraqah bin Naufal", "Musailamah", "Heraklius"], correct: 0 },
+            { id: 25, q: "Mukjizat yang terlihat saat perjalanan dagang Nabi remaja ke Syam adalah...", a: ["Awan selalu menaungi di atas beliau", "Batu bisa berbicara", "Matahari berhenti", "Air keluar dari jari"], correct: 0 },
+            { id: 26, q: "Karakter jujur Nabi Muhammad SAW dalam berdagang membuat kagum seorang saudagar wanita kaya yaitu...", a: ["Khadijah binti Khuwailid", "Aisyah", "Hafshah", "Ummu Salamah"], correct: 0 },
+            { id: 27, q: "Siapa nama pelayan Khadijah yang menemani Nabi Muhammad SAW saat berdagang ke Syam?", a: ["Maysarah", "Zaid", "Bilal", "Anas"], correct: 0 },
+            { id: 28, q: "Masyarakat Quraisy memberikan gelar 'Al-Amin' kepada Nabi Muhammad SAW yang artinya...", a: ["Dapat dipercaya", "Orang yang cerdas", "Pemimpin yang kuat", "Penyayang"], correct: 0 },
+            { id: 29, q: "Mengapa masyarakat Makkah memberi gelar Al-Amin kepada beliau?", a: ["Karena kejujuran dan sifat terpercayanya", "Karena beliau sangat kaya", "Karena anak bangsawan", "Karena jago berperang"], correct: 0 },
+            { id: 30, q: "Nabi Muhammad SAW menikah dengan Siti Khadijah pada saat Nabi berusia...", a: ["25 tahun", "20 tahun", "30 tahun", "40 tahun"], correct: 0 },
+            { id: 31, q: "Berapakah usia Siti Khadijah ketika menikah dengan Nabi Muhammad SAW?", a: ["40 tahun", "25 tahun", "30 tahun", "35 tahun"], correct: 0 },
+            { id: 32, q: "Perselisihan pemuka Quraisy tentang peletakan batu Hajar Aswad berhasil diselesaikan oleh Nabi pada usia...", a: ["35 tahun", "25 tahun", "30 tahun", "40 tahun"], correct: 0 },
+            { id: 33, q: "Batu hitam yang menempel di sudut bangunan Ka'bah dinamakan...", a: ["Hajar Aswad", "Maqam Ibrahim", "Hijir Ismail", "Rukn Yamani"], correct: 0 },
+            { id: 34, q: "Cara cerdas Nabi Muhammad menyelesaikan perselisihan Hajar Aswad adalah dengan...", a: ["Membentangkan kain & diangkat bersama", "Meletakkannya sendiri secara sepihak", "Melakukan undian", "Membeli batu baru"], correct: 0 },
+            { id: 35, q: "Perang yang pernah diikuti oleh Nabi Muhammad SAW pada masa remaja adalah Perang...", a: ["Fijar", "Badar", "Uhud", "Khandaq"], correct: 0 },
+            { id: 36, q: "Perang Fijar dinamakan demikian karena perang tersebut terjadi pada...", a: ["Bulan suci / bulan haram", "Malam hari", "Musim dingin", "Di tepi sungai"], correct: 0 },
+            { id: 37, q: "Peran Nabi Muhammad SAW remaja dalam Perang Fijar adalah...", a: ["Mengumpulkan & menyiapkan anak panah", "Menjadi panglima utama", "Mengobati benteng", "Membuat benteng"], correct: 0 },
+            { id: 38, q: "Kakek Nabi Muhammad (Abdul Muthalib) merupakan tokoh dihormati yang berasal dari suku...", a: ["Quraisy", "Tamim", "Khozraj", "Aus"], correct: 0 },
+            { id: 39, q: "Sifat wajib Nabi Muhammad SAW 'Siddiq' artinya...", a: ["Jujur / Benar", "Dapat dipercaya", "Menyampaikan", "Cerdas"], correct: 0 },
+            { id: 40, q: "Sifat wajib Nabi Muhammad SAW 'Amanah' artinya...", a: ["Dapat dipercaya", "Jujur", "Menyampaikan", "Cerdas"], correct: 0 },
+            { id: 41, q: "Sifat wajib Nabi Muhammad SAW 'Fathanah' artinya...", a: ["Cerdas / Bijaksana", "Menyampaikan", "Jujur", "Setia"], correct: 0 },
+            { id: 42, q: "Sifat wajib Nabi Muhammad SAW 'Tabligh' artinya...", a: ["Menyampaikan wahyu", "Cerdas", "Dapat dipercaya", "Jujur"], correct: 0 },
+            { id: 43, q: "Ayah Nabi Muhammad SAW (Abdullah) wafat dan dimakamkan di kota...", a: ["Yatsrib (Madinah)", "Makkah", "Syam", "Thaif"], correct: 0 },
+            { id: 44, q: "Perjanjian persaudaraan membela orang teraniaya yang diikuti Nabi muda dinamakan...", a: ["Hilf al-Fudhul", "Piagam Madinah", "Perjanjian Hudaibiyah", "Sumpah Pemuda"], correct: 0 },
+            { id: 45, q: "Perilaku jujur Nabi Muhammad SAW saat berdagang adalah...", a: ["Jelaskan kelebihan & kekurangan barang", "Mengurangi timbangan", "Menjual mahal barang jelek", "Berbohong harga modal"], correct: 0 },
+            { id: 46, q: "Gelar Nabi Muhammad SAW 'Rahmatan lil 'Aalamin' berarti...", a: ["Rahmat bagi semesta alam", "Pemimpin Arab", "Pedagang kaya", "Penakluk kota"], correct: 0 },
+            { id: 47, q: "Nabi Muhammad SAW merupakan keturunan lurus dari Nabi terdahulu yaitu Nabi...", a: ["Ibrahim AS & Ismail AS", "Musa AS", "Isa AS", "Yunus AS"], correct: 0 },
+            { id: 48, q: "Ketika Nabi Muhammad SAW lahir, terjadi peristiwa padamnya api sembahan kaum Majusi di negara...", a: ["Persia", "Romawi", "Mesir", "Yaman"], correct: 0 },
+            { id: 49, q: "Siapa paman Nabi Muhammad SAW yang menentang keras dan membenci dakwah Islam?", a: ["Abu Lahab", "Abu Thalib", "Hamzah", "Abbas"], correct: 0 },
+            { id: 50, q: "Meneladani akhlak Nabi Muhammad SAW sejak kecil bermanfaat agar kita...", a: ["Dicintai Allah SWT & berakhlak mulia", "Dipuji teman saja", "Menjadi orang paling kaya", "Tidak perlu belajar"], correct: 0 }
         ];
 
-        // --- SNAKES & LADDERS DATA ---
+        // --- SNAKES & LADDERS POSITIONS ---
         const ladders = {
             4: 16, 12: 33, 22: 43, 29: 50, 41: 62, 54: 75, 63: 81, 72: 91
         };
@@ -278,12 +280,12 @@
         };
 
         const cellColors = [
-            'bg-red-200 text-red-800',
-            'bg-amber-200 text-amber-800',
-            'bg-emerald-200 text-emerald-800',
-            'bg-sky-200 text-sky-800',
-            'bg-purple-200 text-purple-800',
-            'bg-pink-200 text-pink-800'
+            'bg-red-200 text-red-900',
+            'bg-amber-200 text-amber-900',
+            'bg-emerald-200 text-emerald-900',
+            'bg-sky-200 text-sky-900',
+            'bg-purple-200 text-purple-900',
+            'bg-pink-200 text-pink-900'
         ];
 
         let playerPos = 1;
@@ -292,12 +294,16 @@
         let targetPos = 1;
         let isRolling = false;
 
-        // --- INIT BOARD ---
+        // --- RENDER BOARD & GRAPHICS ---
         function createBoard() {
             const board = document.getElementById('board');
-            board.innerHTML = '<svg id="board-svg"></svg><div id="player-1" class="player-token absolute flex items-center justify-center w-6 h-6 md:w-8 md:h-8 rounded-full bg-red-500 text-white font-bold text-xs border-2 border-white shadow-lg"><i class="fa-solid fa-child"></i></div>';
+            board.innerHTML = `
+                <svg id="board-svg"></svg>
+                <div id="player-1" class="player-token absolute flex items-center justify-center w-7 h-7 md:w-9 md:h-9 rounded-full bg-red-500 text-white font-bold text-xs border-2 border-white shadow-lg">
+                    <i class="fa-solid fa-child text-sm"></i>
+                </div>
+            `;
 
-            // Create 100 cells (10x10 zigzag)
             for (let row = 9; row >= 0; row--) {
                 const isEven = (9 - row) % 2 === 1;
                 for (let col = 0; col < 10; col++) {
@@ -310,24 +316,14 @@
                     cell.id = `cell-${cellNum}`;
                     cell.innerHTML = `<span>${cellNum}</span>`;
 
-                    // Mark Snake / Ladder icons
-                    if (ladders[cellNum]) {
-                        cell.innerHTML += `<i class="fa-solid fa-arrow-up absolute bottom-1 right-1 text-emerald-600 text-xs"></i>`;
-                    } else if (snakes[cellNum]) {
-                        cell.innerHTML += `<i class="fa-solid fa-staff-snake absolute bottom-1 right-1 text-red-600 text-xs"></i>`;
-                    } else {
-                        cell.innerHTML += `<i class="fa-solid fa-book-quran absolute bottom-1 right-1 opacity-20 text-xs"></i>`;
-                    }
-
                     board.appendChild(cell);
                 }
             }
 
-            setTimeout(drawSnakesAndLadders, 100);
+            setTimeout(drawRealGraphics, 100);
             updatePlayerPositionVisual(1);
         }
 
-        // Convert cell number to Grid X, Y (percentage)
         function getCellCoords(cellNum) {
             const index = cellNum - 1;
             const row = Math.floor(index / 10);
@@ -335,7 +331,7 @@
             const isEvenRow = row % 2 === 1;
 
             const xIndex = isEvenRow ? (9 - col) : col;
-            const yIndex = 9 - row; // 0 at top
+            const yIndex = 9 - row;
 
             return {
                 x: (xIndex + 0.5) * 10,
@@ -343,58 +339,141 @@
             };
         }
 
-        // Draw Snakes and Ladders using SVG
-        function drawSnakesAndLadders() {
+        // --- DRAW REAL SNAKES & LADDERS (ASLI) ON SVG ---
+        function drawRealGraphics() {
             const svg = document.getElementById('board-svg');
-            svg.innerHTML = '';
+            svg.innerHTML = `
+                <defs>
+                    <linearGradient id="ladderGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#d97706;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#f59e0b;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#b45309;stop-opacity:1" />
+                    </linearGradient>
+                    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+                        <feDropShadow dx="2" dy="3" stdDeviation="3" flood-opacity="0.3"/>
+                    </filter>
+                </defs>
+            `;
 
-            // Draw Ladders
+            // Draw Real Ladders Graphics
             for (let start in ladders) {
                 let end = ladders[start];
                 let c1 = getCellCoords(parseInt(start));
                 let c2 = getCellCoords(end);
 
-                let line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('x1', `${c1.x}%`);
-                line.setAttribute('y1', `${c1.y}%`);
-                line.setAttribute('x2', `${c2.x}%`);
-                line.setAttribute('y2', `${c2.y}%`);
-                line.setAttribute('stroke', '#059669'); // emerald-600
-                line.setAttribute('stroke-width', '6');
-                line.setAttribute('stroke-dasharray', '8,4');
-                line.setAttribute('stroke-linecap', 'round');
-                svg.appendChild(line);
+                let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.setAttribute('filter', 'url(#shadow)');
+
+                let dx = c2.x - c1.x;
+                let dy = c2.y - c1.y;
+                let len = Math.sqrt(dx * dx + dy * dy);
+                let perpX = -dy / len * 2; 
+                let perpY = dx / len * 2;
+
+                // Ladder Side Rails
+                let l1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                l1.setAttribute('x1', `${c1.x - perpX}%`);
+                l1.setAttribute('y1', `${c1.y - perpY}%`);
+                l1.setAttribute('x2', `${c2.x - perpX}%`);
+                l1.setAttribute('y2', `${c2.y - perpY}%`);
+                l1.setAttribute('stroke', 'url(#ladderGrad)');
+                l1.setAttribute('stroke-width', '4');
+
+                let l2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                l2.setAttribute('x1', `${c1.x + perpX}%`);
+                l2.setAttribute('y1', `${c1.y + perpY}%`);
+                l2.setAttribute('x2', `${c2.x + perpX}%`);
+                l2.setAttribute('y2', `${c2.y + perpY}%`);
+                l2.setAttribute('stroke', 'url(#ladderGrad)');
+                l2.setAttribute('stroke-width', '4');
+
+                g.appendChild(l1);
+                g.appendChild(l2);
+
+                // Ladder Rungs (Anak Tangga)
+                let steps = Math.floor(len / 6);
+                for (let i = 1; i < steps; i++) {
+                    let rx1 = c1.x + (dx * (i / steps)) - perpX;
+                    let ry1 = c1.y + (dy * (i / steps)) - perpY;
+                    let rx2 = c1.x + (dx * (i / steps)) + perpX;
+                    let ry2 = c1.y + (dy * (i / steps)) + perpY;
+
+                    let rung = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    rung.setAttribute('x1', `${rx1}%`);
+                    rung.setAttribute('y1', `${ry1}%`);
+                    rung.setAttribute('x2', `${rx2}%`);
+                    rung.setAttribute('y2', `${ry2}%`);
+                    rung.setAttribute('stroke', '#78350f');
+                    rung.setAttribute('stroke-width', '3');
+                    g.appendChild(rung);
+                }
+
+                svg.appendChild(g);
             }
 
-            // Draw Snakes
+            // Draw Real Snakes Graphics
             for (let start in snakes) {
                 let end = snakes[start];
-                let c1 = getCellCoords(parseInt(start));
-                let c2 = getCellCoords(end);
+                let c1 = getCellCoords(parseInt(start)); // Snake Head
+                let c2 = getCellCoords(end);           // Snake Tail
 
-                let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                let midX = (c1.x + c2.x) / 2 + (c1.x > c2.x ? 10 : -10);
-                let midY = (c1.y + c2.y) / 2;
+                let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.setAttribute('filter', 'url(#shadow)');
 
-                let d = `M ${c1.x} ${c1.y} Q ${midX} ${midY} ${c2.x} ${c2.y}`;
-                path.setAttribute('d', d);
-                path.setAttribute('fill', 'none');
-                path.setAttribute('stroke', '#dc2626'); // red-600
-                path.setAttribute('stroke-width', '5');
-                path.setAttribute('stroke-linecap', 'round');
-                svg.appendChild(path);
+                let midX1 = c1.x + (c2.x - c1.x) * 0.3 + 8;
+                let midY1 = c1.y + (c2.y - c1.y) * 0.3 - 5;
+                let midX2 = c1.x + (c2.x - c1.x) * 0.7 - 8;
+                let midY2 = c1.y + (c2.y - c1.y) * 0.7 + 5;
+
+                // Snake Body Path
+                let pathStr = `M ${c1.x} ${c1.y} C ${midX1} ${midY1}, ${midX2} ${midY2}, ${c2.x} ${c2.y}`;
+                
+                let body = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                body.setAttribute('d', pathStr);
+                body.setAttribute('fill', 'none');
+                body.setAttribute('stroke', '#15803d'); // Snake green
+                body.setAttribute('stroke-width', '8');
+                body.setAttribute('stroke-linecap', 'round');
+
+                let bodyPattern = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                bodyPattern.setAttribute('d', pathStr);
+                bodyPattern.setAttribute('fill', 'none');
+                bodyPattern.setAttribute('stroke', '#facc15'); // Yellow spots
+                bodyPattern.setAttribute('stroke-width', '3');
+                bodyPattern.setAttribute('stroke-dasharray', '3,7');
+
+                // Snake Head
+                let head = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                head.setAttribute('cx', `${c1.x}%`);
+                head.setAttribute('cy', `${c1.y}%`);
+                head.setAttribute('r', '7');
+                head.setAttribute('fill', '#166534');
+
+                // Snake Eyes
+                let eye = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                eye.setAttribute('cx', `${c1.x - 1}%`);
+                eye.setAttribute('cy', `${c1.y - 1}%`);
+                eye.setAttribute('r', '1.5');
+                eye.setAttribute('fill', '#ffffff');
+
+                g.appendChild(body);
+                g.appendChild(bodyPattern);
+                g.appendChild(head);
+                g.appendChild(eye);
+
+                svg.appendChild(g);
             }
         }
 
         function updatePlayerPositionVisual(pos) {
             const token = document.getElementById('player-1');
             const coords = getCellCoords(pos);
-            token.style.left = `calc(${coords.x}% - 12px)`;
-            token.style.top = `calc(${coords.y}% - 12px)`;
+            token.style.left = `calc(${coords.x}% - 14px)`;
+            token.style.top = `calc(${coords.y}% - 14px)`;
             document.getElementById('current-pos').innerText = pos;
         }
 
-        // --- GAME LOGIC ---
+        // --- GAME PLAY MECHANICS ---
         function rollDice() {
             if (isRolling) return;
             isRolling = true;
@@ -406,10 +485,7 @@
 
             diceEl.classList.add('dice-rolling');
 
-            const diceIcons = [
-                'fa-dice-one', 'fa-dice-two', 'fa-dice-three', 
-                'fa-dice-four', 'fa-dice-five', 'fa-dice-six'
-            ];
+            const diceIcons = ['fa-dice-one', 'fa-dice-two', 'fa-dice-three', 'fa-dice-four', 'fa-dice-five', 'fa-dice-six'];
 
             let count = 0;
             const rollInterval = setInterval(() => {
@@ -430,12 +506,11 @@
         function movePlayer(steps) {
             let nextPos = playerPos + steps;
             if (nextPos > 100) {
-                nextPos = 100 - (nextPos - 100); // Bounce back if over 100
+                nextPos = 100 - (nextPos - 100);
             }
 
             targetPos = nextPos;
             
-            // Animate step by step
             let currentStep = playerPos;
             const stepInterval = setInterval(() => {
                 if (currentStep < targetPos) currentStep++;
@@ -448,12 +523,10 @@
                     playerPos = targetPos;
                     triggerQuiz(playerPos);
                 }
-            }, 250);
+            }, 200);
         }
 
-        // Trigger Quiz modal at current cell
         function triggerQuiz(cellNum) {
-            // Find question corresponding to cellNum (1 to 50 cycle)
             let qIndex = (cellNum - 1) % questionsData.length;
             let qData = questionsData[qIndex];
 
@@ -475,7 +548,6 @@
                 optionsContainer.appendChild(btn);
             });
 
-            // Show Modal
             const modal = document.getElementById('quiz-modal');
             const card = document.getElementById('modal-card');
             modal.classList.remove('hidden');
@@ -490,14 +562,12 @@
             const feedback = document.getElementById('quiz-feedback');
             const nextBtn = document.getElementById('next-btn');
 
-            // Disable all options after click
             for (let btn of options) {
                 btn.disabled = true;
                 btn.classList.remove('btn-bounce', 'hover:border-amber-400', 'hover:bg-amber-50');
             }
 
             if (selectedIdx === correctIdx) {
-                // CORRECT
                 clickedBtn.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-800');
                 clickedBtn.querySelector('i').className = 'fa-solid fa-circle-check text-emerald-600';
                 
@@ -509,12 +579,11 @@
                 document.getElementById('current-score').innerText = score;
                 document.getElementById('questions-count').innerText = `${answeredQuestions.size} / 50`;
 
-                // Handle Snakes or Ladders after correct answer
                 if (ladders[cellNum]) {
-                    feedback.innerHTML = `<i class="fa-solid fa-circle-check"></i> Jawaban Benar! (+10 Skor)<br><span class="text-xs text-emerald-700">Hebat! Kamu menemukan TANGGA dan naik ke petak ${ladders[cellNum]}!</span>`;
+                    feedback.innerHTML = `<i class="fa-solid fa-circle-check"></i> Jawaban Benar! (+10 Skor)<br><span class="text-xs text-emerald-700">Hebat! Kamu menemukan TANGGA dan NAIK ke petak ${ladders[cellNum]}!</span>`;
                     playerPos = ladders[cellNum];
                 } else if (snakes[cellNum]) {
-                    feedback.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Jawaban Benar! Tapi ada ULAR di sini, kamu turun ke petak ${snakes[cellNum]}!`;
+                    feedback.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Jawaban Benar! Tapi ada ULAR di sini, kamu TURUN ke petak ${snakes[cellNum]}!`;
                     playerPos = snakes[cellNum];
                 } else {
                     feedback.innerHTML = `<i class="fa-solid fa-circle-check"></i> Jawaban Benar! (+10 Skor) Kamu bertahan di petak ini.`;
@@ -523,18 +592,15 @@
                 confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
 
             } else {
-                // INCORRECT
                 clickedBtn.classList.add('bg-red-100', 'border-red-500', 'text-red-800');
                 clickedBtn.querySelector('i').className = 'fa-solid fa-circle-xmark text-red-600';
                 
-                // Highlight correct answer
                 options[correctIdx].classList.add('bg-emerald-50', 'border-emerald-400');
 
                 feedback.classList.remove('hidden');
                 feedback.classList.add('bg-red-100', 'text-red-800');
-                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Jawaban Kurang Tepat!<br><span class="text-xs">Kamu terlempar kembali 1 langkah ke belakang!</span>`;
+                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Jawaban Kurang Tepat!<br><span class="text-xs">Kamu terlempar mundur 1 petak ke belakang!</span>`;
                 
-                // Penalty: step back 1 slot
                 playerPos = Math.max(1, playerPos - 1);
             }
 
@@ -552,13 +618,11 @@
                 modal.classList.add('hidden');
                 updatePlayerPositionVisual(playerPos);
 
-                // Enable roll button again
                 const btn = document.getElementById('roll-btn');
                 btn.disabled = false;
                 btn.classList.remove('opacity-50');
                 isRolling = false;
 
-                // Check Win Condition
                 if (playerPos >= 100) {
                     showWinModal();
                 }
@@ -571,19 +635,8 @@
             confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
         }
 
-        // Resize SVG on window resize
-        window.addEventListener('resize', drawSnakesAndLadders);
-
-        // Start
+        window.addEventListener('resize', drawRealGraphics);
         window.onload = createBoard;
     </script>
 </body>
 </html>
-```eof
-
-### Ringkasan Gim Ular Tangga PAI:
-1. **Desain & Visual**: Didesain khusus menggunakan warna-warna cerah (*colorful*) khas dunia anak SD, lengkap dengan efek modal animasi, confetti saat menang, serta jalur ular dan tangga yang terhubung dengan jelas.
-2. **50 Soal Terstruktur**: Seluruh materi Sejarah Nabi Muhammad SAW (dari peristiwa kelahiran, pasukan gajah, ibu persusuan, masa remaja, menggembala, hingga gelar *Al-Amin*) telah dikemas secara runtut dalam 50 soal pilihan ganda.
-3. **Fleksibel & Siap Main**: Berkas `.html` di atas berdiri sendiri (*standalone*), bisa langsung dibuka menggunakan peramban apa saja tanpa instalasi tambahan.
-
-Semoga gim ini membuat pembelajaran Pendidikan Agama Islam menjadi jauh lebih seru, menyenangkan, dan interaktif bagi siswa-siswi kelas 5 SD! Selamat bermain dan belajar!
